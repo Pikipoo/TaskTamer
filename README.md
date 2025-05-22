@@ -51,6 +51,42 @@ The project follows MVVM/BLoC architecture with a clean folder structure. Key te
 - **Local Storage:** Hive
 - **Notifications:** `flutter_local_notifications`
 
+### Setting Up Development Environment
+
+Run the setup script to configure git hooks and project dependencies:
+
+```bash
+dart tool/setup.dart
+```
+
+This will install pre-commit hooks that:
+
+- Format your code automatically
+- Run the analyzer to check for issues
+- Run tests to ensure nothing breaks
+
+### Code Quality and Standards
+
+The project uses:
+
+- `dart format` with a line length of 100 characters
+- `dart analyze` with fatal info level set
+- Flutter tests for all functionality
+
+Git hooks ensure these checks run before commits and pushes:
+
+- **pre-commit**: Formats code, runs analysis and tests but allows commits even if analysis or tests fail
+- **pre-push**: Enforces that all formatting, analysis, and tests pass before pushing
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and delivery:
+
+- **On Pull Requests:** Code is formatted, analyzed, and tested
+- **On Main Branch:** The app is built and an APK is generated
+
+The pipeline workflow can be found in `.github/workflows/flutter_ci.yml`.
+
 ## Build
 
 To build release versions:

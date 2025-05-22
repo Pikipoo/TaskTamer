@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Flutter: Clean",
+      "type": "shell",
+      "command": "flutter clean",
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Pub Get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Build Linux",
+      "type": "shell",
+      "command": "flutter build linux --release",
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Build Web",
+      "type": "shell",
+      "command": "flutter build web --release",
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Build All",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Flutter: Clean",
+        "Flutter: Pub Get",
+        "Flutter: Build Linux",
+        "Flutter: Build Web"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

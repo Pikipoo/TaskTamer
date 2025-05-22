@@ -1,0 +1,113 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# TaskTamer Self-Care App — Cursor AI Context
+
+> This file provides the essential project context for Cursor AI when working in the Cursor IDE. It summarizes goals, tech choices, architecture, art direction, core features, and sample code.
+
+---
+
+## 1. Project Overview
+
+**TaskTamer** is a cross-platform mobile app combining task management with collectible pixel-monsters. Completing real‑world tasks feeds, trains, and evolves pixel pets, turning self‑organization into a fun, rewarding game.
+
+### Goals
+
+* **Promote self-organization** through gameplay
+* **Drive motivation** with collectible progression
+* **Deliver a strong pixel-art identity** for nostalgia and clarity
+* **Implement reliable, testable code** with scalable architecture
+
+---
+
+## 2. Tech Stack
+
+* **Framework:** Flutter + [Flame engine](mdc:https:/flame-engine.org)
+* **Language:** Dart
+* **State Management:** `flutter_bloc` (BLoC pattern)
+* **Dependency Injection:** `get_it`
+* **Local Storage:** Hive
+* **Notifications:** `flutter_local_notifications`
+* **Art Tools:** Aseprite (32×32 tiles, 16‑color palette)
+* **Testing:** `flutter_test` + `mocktail`
+* **CI/CD:** GitHub Actions
+
+---
+
+## 3. Architecture
+
+```
+lib/
+├─ main.dart
+├─ src/
+│  ├─ app.dart
+│  ├─ blocs/           # TaskBloc, PetBloc
+│  ├─ models/          # Task, Monster, Evolution
+│  ├─ repositories/    # HiveTaskRepository
+│  ├─ services/        # NotificationService, AudioService
+│  ├─ ui/              # Screens, Widgets, Themes
+│  └─ game/            # Flame components, game loop
+└─ assets/
+   ├─ images/
+   └─ audio/
+```
+
+* **Pattern:** MVVM/BLoC with clean folder structure
+* **Principles:** SOLID, single-responsibility, dependency injection
+
+---
+
+## 4. Pixel Art & UI
+
+* **Resolution:** 32×32 sprites, scaled 4×
+* **Palette:** 16 colors
+* **Font:** PixelFont, high contrast
+* **Animations:** Idle, feed, evolve, celebrate via sprite sheets
+
+---
+
+## 5. Core Features
+
+1. **Task Management** (Todo, Habit, Milestone)
+2. **Pet Growth** (XP → Levels → Evolutions)
+3. **Collection** (Multiple species & elemental types)
+4. **Rewards & Feedback** (Particles, sounds, streak bonuses)
+
+---
+
+## 6. Sample Code Snippets
+
+<details>
+<summary><code>main.dart</code></summary>
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  runApp(TaskTamerApp());
+}
+```
+</details>
+
+<details>
+<summary><code>service_locator.dart</code></summary>
+```dart
+final locator = GetIt.instance;
+void setupLocator() {
+  locator.registerLazySingleton<TaskRepository>(() => HiveTaskRepository());
+  locator.registerFactory(() => TaskBloc(locator()));
+  locator.registerFactory(() => PetBloc(locator()));
+  locator.registerLazySingleton<NotificationService>(() => LocalNotificationService());
+}
+```
+</details>
+
+---
+
+## 7. Next Steps
+
+* Expand unit/widget tests
+* Automate sprite–sheet packing
+* Configure GitHub Actions workflow
+* Plan analytics & social features

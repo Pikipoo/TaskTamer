@@ -6,6 +6,13 @@
       "type": "dart",
       "request": "launch",
       "program": "lib/main.dart"
+    },
+    {
+      "name": "Flutter: Launch Life Quest (Web Debug)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
     }
   ]
 }

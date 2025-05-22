@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
-import '../models/task.dart';
+import 'package:task_tamer/src/models/task.dart';
+import 'package:task_tamer/src/services/notification_service.dart';
 import 'dart:math';
-import '../services/notification_service.dart';
 
 class TasksScreen extends StatefulWidget {
   final List<Task> tasks;
   final void Function(Task) onAddTask;
   final void Function(String) onDeleteTask;
   final void Function(int) onXpEarned;
-  const TasksScreen({Key? key, required this.onXpEarned, required this.tasks, required this.onAddTask, required this.onDeleteTask}) : super(key: key);
+  const TasksScreen({
+    Key? key,
+    required this.onXpEarned,
+    required this.tasks,
+    required this.onAddTask,
+    required this.onDeleteTask,
+  }) : super(key: key);
 
   @override
   State<TasksScreen> createState() => _TasksScreenState();
@@ -46,6 +52,7 @@ class _TasksScreenState extends State<TasksScreen> {
         });
       }
     }
+
     void removeRelativeNotification(int idx) {
       setState(() {
         relativeNotifications.removeAt(idx);
@@ -65,7 +72,9 @@ class _TasksScreenState extends State<TasksScreen> {
                 children: [
                   TextFormField(
                     decoration: const InputDecoration(labelText: 'Title *'),
-                    validator: (value) => value == null || value.trim().isEmpty ? 'Title required' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Title required'
+                        : null,
                     onChanged: (value) => title = value,
                   ),
                   TextFormField(
@@ -75,7 +84,11 @@ class _TasksScreenState extends State<TasksScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(dueDate == null ? 'No due date' : 'Due: \\${dueDate!.toLocal().toString().split(' ')[0]}'),
+                        child: Text(
+                          dueDate == null
+                              ? 'No due date'
+                              : 'Due: ${dueDate!.toLocal().toString().split(' ')[0]}',
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.calendar_today),
@@ -98,7 +111,11 @@ class _TasksScreenState extends State<TasksScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(dueTime == null ? 'No due time' : 'Time: \\${dueTime!.format(context)}'),
+                        child: Text(
+                          dueTime == null
+                              ? 'No due time'
+                              : 'Time: ${dueTime!.format(context)}',
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.access_time),
@@ -122,28 +139,40 @@ class _TasksScreenState extends State<TasksScreen> {
                     items: RepeatUnit.values.map((unit) {
                       return DropdownMenuItem(
                         value: unit,
-                        child: Text(unit == RepeatUnit.none ? 'Does not repeat' : unit.name),
+                        child: Text(
+                          unit == RepeatUnit.none
+                              ? 'Does not repeat'
+                              : unit.name,
+                        ),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
                         repeatUnit = value!;
-                        if (repeatUnit == RepeatUnit.none) repeatInterval = null;
+                        if (repeatUnit == RepeatUnit.none)
+                          repeatInterval = null;
                       });
                     },
                   ),
                   if (repeatUnit != RepeatUnit.none)
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Repeat every ... (${repeatUnit.name}${repeatUnit == RepeatUnit.hour ? '' : 's'})'),
+                      decoration: InputDecoration(
+                        labelText:
+                            'Repeat every ... (${repeatUnit.name}${repeatUnit == RepeatUnit.hour ? '' : 's'})',
+                      ),
                       initialValue: '1',
                       keyboardType: TextInputType.number,
-                      onChanged: (value) => repeatInterval = int.tryParse(value) ?? 1,
+                      onChanged: (value) =>
+                          repeatInterval = int.tryParse(value) ?? 1,
                     ),
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Times per Day'),
+                    decoration: const InputDecoration(
+                      labelText: 'Times per Day',
+                    ),
                     initialValue: '1',
                     keyboardType: TextInputType.number,
-                    onChanged: (value) => timesPerDay = int.tryParse(value) ?? 1,
+                    onChanged: (value) =>
+                        timesPerDay = int.tryParse(value) ?? 1,
                   ),
                   TextFormField(
                     decoration: const InputDecoration(labelText: 'XP Reward'),
@@ -168,7 +197,11 @@ class _TasksScreenState extends State<TasksScreen> {
                       const SizedBox(width: 8),
                       DropdownButton<String>(
                         value: notifUnit,
-                        items: notifUnits.map((u) => DropdownMenuItem(value: u, child: Text(u))).toList(),
+                        items: notifUnits
+                            .map(
+                              (u) => DropdownMenuItem(value: u, child: Text(u)),
+                            )
+                            .toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => notifUnit = v);
                         },
@@ -183,7 +216,9 @@ class _TasksScreenState extends State<TasksScreen> {
                   for (int i = 0; i < relativeNotifications.length; i++)
                     ListTile(
                       dense: true,
-                      title: Text('Notify ${relativeNotifications[i]['value']} ${relativeNotifications[i]['unit']}${relativeNotifications[i]['value'] == 1 ? '' : 's'} before due'),
+                      title: Text(
+                        'Notify ${relativeNotifications[i]['value']} ${relativeNotifications[i]['unit']}${relativeNotifications[i]['value'] == 1 ? '' : 's'} before due',
+                      ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () => removeRelativeNotification(i),
@@ -282,9 +317,10 @@ class _TasksScreenState extends State<TasksScreen> {
     int? repeatInterval = task.repeatInterval;
     int timesPerDay = task.timesPerDay;
     int xpReward = task.xpReward;
-    TimeOfDay? dueTime = task.dueDate != null ? TimeOfDay(hour: task.dueDate!.hour, minute: task.dueDate!.minute) : null;
+    TimeOfDay? dueTime = task.dueDate != null
+        ? TimeOfDay(hour: task.dueDate!.hour, minute: task.dueDate!.minute)
+        : null;
     List<Map<String, dynamic>> relativeNotifications = [];
-    // Reconstruct relative notifications is not trivial, so just show the absolute times for now
     int notifValue = 1;
     String notifUnit = 'hour';
     final notifUnits = ['minute', 'hour', 'day', 'week'];
@@ -303,7 +339,9 @@ class _TasksScreenState extends State<TasksScreen> {
                   TextFormField(
                     initialValue: title,
                     decoration: const InputDecoration(labelText: 'Title *'),
-                    validator: (value) => value == null || value.trim().isEmpty ? 'Title required' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Title required'
+                        : null,
                     onChanged: (value) => title = value,
                   ),
                   TextFormField(
@@ -314,7 +352,11 @@ class _TasksScreenState extends State<TasksScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(dueDate == null ? 'No due date' : 'Due: \\${dueDate!.toLocal().toString().split(' ')[0]}'),
+                        child: Text(
+                          dueDate == null
+                              ? 'No due date'
+                              : 'Due: ${dueDate!.toLocal().toString().split(' ')[0]}',
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.calendar_today),
@@ -337,7 +379,11 @@ class _TasksScreenState extends State<TasksScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(dueTime == null ? 'No due time' : 'Time: \\${dueTime!.format(context)}'),
+                        child: Text(
+                          dueTime == null
+                              ? 'No due time'
+                              : 'Time: ${dueTime!.format(context)}',
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.access_time),
@@ -361,28 +407,40 @@ class _TasksScreenState extends State<TasksScreen> {
                     items: RepeatUnit.values.map((unit) {
                       return DropdownMenuItem(
                         value: unit,
-                        child: Text(unit == RepeatUnit.none ? 'Does not repeat' : unit.name),
+                        child: Text(
+                          unit == RepeatUnit.none
+                              ? 'Does not repeat'
+                              : unit.name,
+                        ),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
                         repeatUnit = value!;
-                        if (repeatUnit == RepeatUnit.none) repeatInterval = null;
+                        if (repeatUnit == RepeatUnit.none)
+                          repeatInterval = null;
                       });
                     },
                   ),
                   if (repeatUnit != RepeatUnit.none)
                     TextFormField(
                       initialValue: repeatInterval?.toString() ?? '1',
-                      decoration: InputDecoration(labelText: 'Repeat every ... (${repeatUnit.name}${repeatUnit == RepeatUnit.hour ? '' : 's'})'),
+                      decoration: InputDecoration(
+                        labelText:
+                            'Repeat every ... (${repeatUnit.name}${repeatUnit == RepeatUnit.hour ? '' : 's'})',
+                      ),
                       keyboardType: TextInputType.number,
-                      onChanged: (value) => repeatInterval = int.tryParse(value) ?? 1,
+                      onChanged: (value) =>
+                          repeatInterval = int.tryParse(value) ?? 1,
                     ),
                   TextFormField(
                     initialValue: timesPerDay.toString(),
-                    decoration: const InputDecoration(labelText: 'Times per Day'),
+                    decoration: const InputDecoration(
+                      labelText: 'Times per Day',
+                    ),
                     keyboardType: TextInputType.number,
-                    onChanged: (value) => timesPerDay = int.tryParse(value) ?? 1,
+                    onChanged: (value) =>
+                        timesPerDay = int.tryParse(value) ?? 1,
                   ),
                   TextFormField(
                     initialValue: xpReward.toString(),
@@ -391,12 +449,13 @@ class _TasksScreenState extends State<TasksScreen> {
                     onChanged: (value) => xpReward = int.tryParse(value) ?? 10,
                   ),
                   const SizedBox(height: 12),
-                  // For now, just show the existing notification times
                   if (task.notifications.isNotEmpty)
-                    ...task.notifications.map((dt) => ListTile(
-                          dense: true,
-                          title: Text('🔔 Notification: \\${dt}'),
-                        )),
+                    ...task.notifications.map(
+                      (dt) => ListTile(
+                        dense: true,
+                        title: Text('🔔 Notification: $dt'),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -448,9 +507,7 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tasks'),
-      ),
+      appBar: AppBar(title: const Text('Tasks')),
       body: widget.tasks.isEmpty
           ? const Center(child: Text('No tasks yet. Add one!'))
           : ListView.builder(
@@ -474,13 +531,16 @@ class _TasksScreenState extends State<TasksScreen> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (task.description != null && task.description!.isNotEmpty)
+                      if (task.description != null &&
+                          task.description!.isNotEmpty)
                         Text(task.description!),
                       Text('XP: ${task.xpReward}'),
-                      if (task.dueDate != null)
-                        Text('Due: ${task.dueDate}'),
-                      if (task.repeatUnit != RepeatUnit.none && task.repeatInterval != null)
-                        Text('Repeats every ${task.repeatInterval} ${task.repeatUnit.name}${task.repeatInterval == 1 ? '' : 's'}'),
+                      if (task.dueDate != null) Text('Due: ${task.dueDate}'),
+                      if (task.repeatUnit != RepeatUnit.none &&
+                          task.repeatInterval != null)
+                        Text(
+                          'Repeats every ${task.repeatInterval} ${task.repeatUnit.name}${task.repeatInterval == 1 ? '' : 's'}',
+                        ),
                       if (task.timesPerDay > 1)
                         Row(
                           children: [
@@ -498,7 +558,9 @@ class _TasksScreenState extends State<TasksScreen> {
                           ],
                         ),
                       if (task.notifications.isNotEmpty)
-                        ...task.notifications.map((dt) => Text('🔔 Notification: $dt')).toList(),
+                        ...task.notifications
+                            .map((dt) => Text('🔔 Notification: $dt'))
+                            .toList(),
                     ],
                   ),
                   trailing: IconButton(

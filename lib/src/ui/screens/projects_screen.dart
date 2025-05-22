@@ -6,12 +6,8 @@ class ProjectsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projects'),
-      ),
-      body: const Center(
-        child: Text('Your projects will appear here.'),
-      ),
+      appBar: AppBar(title: const Text('Projects')),
+      body: const Center(child: Text('Your projects will appear here.')),
     );
   }
 }

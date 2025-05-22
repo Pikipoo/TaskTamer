@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:task_tamer/models/task.dart';
+import 'package:task_tamer/src/models/task.dart';
 import 'package:hive/hive.dart';
 
 void main() {
@@ -60,7 +60,11 @@ void main() {
     });
 
     test('Task notifications', () {
-      final task = Task(id: '4', title: 'Notify', notifications: [DateTime(2025, 1, 1, 8, 0)]);
+      final task = Task(
+        id: '4',
+        title: 'Notify',
+        notifications: [DateTime(2025, 1, 1, 8, 0)],
+      );
       expect(task.notifications.length, 1);
       expect(task.notifications.first, DateTime(2025, 1, 1, 8, 0));
     });

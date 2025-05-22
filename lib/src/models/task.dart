@@ -1,4 +1,6 @@
+import 'package:meta/meta.dart';
 import 'package:hive/hive.dart';
+
 part 'task.g.dart';
 
 @HiveType(typeId: 0)
@@ -57,8 +59,8 @@ class Task extends HiveObject {
     this.isCompleted = false,
     this.xpReward = 10,
     List<DateTime>? notifications,
-  })  : creationDate = creationDate ?? DateTime.now(),
-        notifications = notifications ?? [];
+  }) : creationDate = creationDate ?? DateTime.now(),
+       notifications = notifications ?? [];
 
   void complete() {
     timesCompletedToday++;
@@ -72,7 +74,9 @@ class Task extends HiveObject {
     timesCompletedToday = 0;
   }
 
-  double get progress => timesPerDay > 1 ? timesCompletedToday / timesPerDay : (isCompleted ? 1.0 : 0.0);
+  double get progress => timesPerDay > 1
+      ? timesCompletedToday / timesPerDay
+      : (isCompleted ? 1.0 : 0.0);
 
   bool shouldRepeat(DateTime now) {
     if (repeatUnit == RepeatUnit.none || repeatInterval == null) return false;

@@ -6,12 +6,8 @@ class CreaturesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Creatures'),
-      ),
-      body: const Center(
-        child: Text('Your creatures will appear here.'),
-      ),
+      appBar: AppBar(title: const Text('Creatures')),
+      body: const Center(child: Text('Your creatures will appear here.')),
     );
   }
 }

@@ -9,7 +9,8 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
     tz.initializeTimeZones();
@@ -19,11 +20,12 @@ class NotificationService {
         DarwinInitializationSettings();
     const LinuxInitializationSettings initializationSettingsLinux =
         LinuxInitializationSettings(defaultActionName: 'Open');
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-      linux: initializationSettingsLinux,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+          linux: initializationSettingsLinux,
+        );
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -38,7 +40,10 @@ class NotificationService {
       return;
     }
     if (scheduledDate.isAfter(DateTime.now())) {
-      final tz.TZDateTime tzDateTime = tz.TZDateTime.from(scheduledDate, tz.local);
+      final tz.TZDateTime tzDateTime = tz.TZDateTime.from(
+        scheduledDate,
+        tz.local,
+      );
       await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,

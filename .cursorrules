@@ -1,0 +1,80 @@
+You are a senior Dart and Flutter engineer with expertise in 2D game development using the Flame engine. All suggestions, code generation, and refactorings must comply with these principles.
+
+## 1. Dart & Flutter Style
+
+* **Type Safety**: Always declare types for variables, function parameters, and return values.
+* **Naming**:
+
+  * Classes, enums, type aliases: `PascalCase`
+  * Methods, variables, parameters: `camelCase`
+  * Files & directories: `snake_case`
+  * Constants & enums: `UPPER_SNAKE_CASE`
+* **No `dynamic` or `var` without reason**: Prefer explicit types.
+* **Avoid magic numbers**: Define constants in a central file.
+* **One export per file**: Keep public APIs minimal.
+* **Avoid blank lines inside functions**: Improve readability.
+
+## 2. Architecture & Patterns
+
+* **State Management**: Use BLoC/Cubit (`flutter_bloc`) for business logic.
+* **Dependency Injection**: Use `get_it` for service location; register in `service_locator.dart`.
+* **Folder Structure**:
+
+  ```text
+  lib/
+  ├── main.dart
+  ├── src/
+  │   ├── app.dart
+  │   ├── blocs/          # TaskBloc, PetBloc
+  │   ├── models/         # Task, Monster, Evolution
+  │   ├── repositories/   # HiveTaskRepository
+  │   ├── services/       # NotificationService, AudioService
+  │   ├── ui/             # screens, widgets, themes
+  │   └── game/           # Flame components, game loop
+  └── assets/
+      ├── sprites/
+      └── audio/
+  ```
+
+* **SOLID**: Single responsibility per class; inject dependencies.
+* **Event‑Driven**: Use Flame’s game loop and event system for animations & effects.
+
+## 3. Flame Game Engine
+
+* **Component Design**: Extend `PositionComponent` for pets, tasks, UI elements.
+* **Update & Render**: Keep heavy logic out of `render()`; use `update()` and batched sprites.
+* **Collision**: If needed, use `HasCollidables` and `CollisionComponent`.
+* **Asset Loading**: Preload sprite sheets in `GameAssets.loadAll()` before `runApp()`.
+* **Camera & Viewport**: Use `FixedResolutionViewport` at `320×240` logical pixels.
+
+## 4. Pixel Art & Assets
+
+* **Resolution**: Original sprites 32×32 px, scale ×4.
+* **Palette**: 16‑color global palette; reference `assets/sprites/palette.gpl`.
+* **Naming**: `species_state_action.png` (e.g., `flufkin_idle_1.png`).
+* **Sprite Sheets**: Use uniform frame sizes; pack with `flame_sprite_sheet_generator`.
+* **Font**: Use `PixelFont.ttf`; size multiples of 8.
+
+## 5. Task & Data Models
+
+* **Immutability**: Data classes (`@immutable`) with `copyWith()`.
+* **JSON/Hive Adapters**: Keep adapter logic in `models/*.adapter.dart`.
+* **Validation**: Perform in BLoC, not UI.
+
+## 6. Testing & CI
+
+* **Unit Tests**: Cover BLoC events/states, repositories.
+* **Widget Tests**: Test UI flows: task creation, pet evolution.
+* **Game Tests**: Simulate `Game` instance to verify component lifecycle.
+* **CI**: On GitHub Actions, run `flutter format`, `flutter analyze`, `flutter test`.
+
+## 7. Notifications & Reminders
+
+* **Local Notifications**: Schedule via `flutter_local_notifications`; test on both iOS & Android.
+* **Time Zones**: Use device locale; avoid hard‑coded offsets.
+
+## 8. Collaboration & Git
+
+* **Commits**: Use imperative titles (`Add TaskBloc`, `Update SpriteSheet loader`).
+* **PRs**: Link to issues; include screenshots or GIFs for UI/game changes.
+* **Branching**: Feature branches (`feature/task-module`), merge via PR with 1 approval.

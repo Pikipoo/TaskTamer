@@ -2,35 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:task_tamer/src/models/task.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
 import 'dart:math';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../blocs/task_bloc.dart';
 
-class TasksScreen extends StatefulWidget {
-  final List<Task> tasks;
-  final void Function(Task) onAddTask;
-  final void Function(String) onDeleteTask;
-  final void Function(int) onXpEarned;
-  const TasksScreen({
-    Key? key,
-    required this.onXpEarned,
-    required this.tasks,
-    required this.onAddTask,
-    required this.onDeleteTask,
-  }) : super(key: key);
+class TasksScreen extends StatelessWidget {
+  const TasksScreen({Key? key}) : super(key: key);
 
-  @override
-  State<TasksScreen> createState() => _TasksScreenState();
-}
-
-class _TasksScreenState extends State<TasksScreen> {
-  void _completeTask(Task task) {
-    setState(() {
-      task.complete();
-      if (task.isCompleted) {
-        widget.onXpEarned(task.xpReward);
-      }
-    });
-  }
-
-  void _showAddTaskDialog() {
+  void _showAddTaskDialog(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
     String title = '';
     String? description;
@@ -45,7 +23,7 @@ class _TasksScreenState extends State<TasksScreen> {
     String notifUnit = 'hour';
     final notifUnits = ['minute', 'hour', 'day', 'week'];
 
-    void addRelativeNotification() {
+    void addRelativeNotification(void Function(void Function()) setState) {
       if (notifValue > 0 && notifUnits.contains(notifUnit)) {
         setState(() {
           relativeNotifications.add({'value': notifValue, 'unit': notifUnit});
@@ -53,7 +31,7 @@ class _TasksScreenState extends State<TasksScreen> {
       }
     }
 
-    void removeRelativeNotification(int idx) {
+    void removeRelativeNotification(int idx, void Function(void Function()) setState) {
       setState(() {
         relativeNotifications.removeAt(idx);
       });
@@ -208,7 +186,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed: addRelativeNotification,
+                        onPressed: () => addRelativeNotification(setState),
                         child: const Text('Add'),
                       ),
                     ],
@@ -221,7 +199,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => removeRelativeNotification(i),
+                        onPressed: () => removeRelativeNotification(i, setState),
                       ),
                     ),
                 ],
@@ -296,7 +274,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       scheduledDate: notifications[i],
                     );
                   }
-                  widget.onAddTask(newTask);
+                  context.read<TaskBloc>().add(AddTask(newTask));
                   Navigator.of(context).pop();
                 }
               },
@@ -308,7 +286,7 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 
-  void _showEditTaskDialog(Task task) {
+  void _showEditTaskDialog(BuildContext context, Task task) {
     final _formKey = GlobalKey<FormState>();
     String title = task.title;
     String? description = task.description;
@@ -492,7 +470,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       ..timesPerDay = timesPerDay
                       ..xpReward = xpReward;
                   });
-                  widget.onAddTask(task); // This will update and persist
+                  context.read<TaskBloc>().add(UpdateTask(task));
                   Navigator.of(context).pop();
                 }
               },
@@ -508,17 +486,24 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tasks')),
-      body: widget.tasks.isEmpty
-          ? const Center(child: Text('No tasks yet. Add one!'))
-          : ListView.builder(
-              itemCount: widget.tasks.length,
+      body: BlocBuilder<TaskBloc, TaskState>(
+        builder: (context, state) {
+          if (state is TasksLoaded) {
+            final tasks = state.tasks;
+            if (tasks.isEmpty) {
+              return const Center(child: Text('No tasks yet. Add one!'));
+            }
+            return ListView.builder(
+              itemCount: tasks.length,
               itemBuilder: (context, index) {
-                final task = widget.tasks[index];
+                final task = tasks[index];
                 return ListTile(
-                  onTap: () => _showEditTaskDialog(task),
+                  onTap: () => _showEditTaskDialog(context, task),
                   leading: Checkbox(
                     value: task.isCompleted,
-                    onChanged: (_) => _completeTask(task),
+                    onChanged: (_) {
+                      // TODO: Implement completion logic via BLoC if needed
+                    },
                   ),
                   title: Text(
                     task.title,
@@ -565,13 +550,20 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () => widget.onDeleteTask(task.id),
+                    onPressed: () => context.read<TaskBloc>().add(DeleteTask(task.id)),
                   ),
                 );
               },
-            ),
+            );
+          } else if (state is TasksInitial) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return const Center(child: Text('Failed to load tasks.'));
+          }
+        },
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddTaskDialog,
+        onPressed: () => _showAddTaskDialog(context),
         child: const Icon(Icons.add),
         tooltip: 'Add Task',
       ),

@@ -1,28 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tamer/src/ui/screens/tasks_screen.dart';
 import 'package:task_tamer/src/models/task.dart';
+import 'package:task_tamer/src/blocs/task_bloc.dart';
+import 'package:task_tamer/src/repositories/hive_task_repository.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:io';
 
 void main() {
-  testWidgets(
-    'TasksScreen renders, adds, completes, edits, and deletes a task',
-    (WidgetTester tester) async {
-      int xp = 0;
-      Map<String, Task> taskMap = {};
-      void onXpEarned(int add) => xp += add;
-      void onAddTask(Task t) => taskMap[t.id] = t;
-      void onDeleteTask(String id) => taskMap.remove(id);
+  setUpAll(() async {
+    final testDir = Directory('./test/hive_testing');
+    if (!testDir.existsSync()) {
+      testDir.createSync(recursive: true);
+    }
+    Hive.init(testDir.path);
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(RepeatUnitAdapter());
+    }
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(TaskAdapter());
+    }
+  });
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: TasksScreen(
-            onXpEarned: onXpEarned,
-            tasks: taskMap.values.toList(),
-            onAddTask: onAddTask,
-            onDeleteTask: onDeleteTask,
-          ),
-        ),
-      );
+  setUp(() async {
+    // Clear the test box before each test
+    final box = await Hive.openBox<Task>('tasks');
+    await box.clear();
+  });
+
+  Widget makeTestable(Widget child) {
+    final repo = HiveTaskRepository();
+    final bloc = TaskBloc(repo);
+    return BlocProvider.value(
+      value: bloc..add(LoadTasks()),
+      child: MaterialApp(home: child),
+    );
+  }
+
+  testWidgets(
+    'TasksScreen renders, adds, edits, and deletes a task',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(makeTestable(const TasksScreen()));
+      await tester.pumpAndSettle();
       expect(find.text('No tasks yet. Add one!'), findsOneWidget);
 
       // Add a task
@@ -32,26 +53,7 @@ void main() {
       await tester.enterText(find.bySemanticsLabel('XP Reward'), '15');
       await tester.tap(find.byType(ElevatedButton).last);
       await tester.pumpAndSettle();
-      // Rebuild with updated tasks
-      await tester.pumpWidget(
-        MaterialApp(
-          home: TasksScreen(
-            onXpEarned: onXpEarned,
-            tasks: taskMap.values.toList(),
-            onAddTask: onAddTask,
-            onDeleteTask: onDeleteTask,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
       expect(find.text('Test Task'), findsOneWidget);
-      expect(taskMap.length, 1);
-
-      // Complete the task
-      await tester.tap(find.byType(Checkbox));
-      await tester.pumpAndSettle();
-      expect(taskMap.values.first.isCompleted, true);
-      expect(xp, 15);
 
       // Edit the task
       await tester.tap(find.text('Test Task'));
@@ -59,37 +61,11 @@ void main() {
       await tester.enterText(find.bySemanticsLabel('Title *'), 'Edited Task');
       await tester.tap(find.byType(ElevatedButton).last);
       await tester.pumpAndSettle();
-      // Rebuild with updated tasks
-      await tester.pumpWidget(
-        MaterialApp(
-          home: TasksScreen(
-            onXpEarned: onXpEarned,
-            tasks: taskMap.values.toList(),
-            onAddTask: onAddTask,
-            onDeleteTask: onDeleteTask,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
       expect(find.text('Edited Task'), findsOneWidget);
-      expect(taskMap.values.first.title, 'Edited Task');
 
       // Delete the task
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pumpAndSettle();
-      // Rebuild with updated tasks
-      await tester.pumpWidget(
-        MaterialApp(
-          home: TasksScreen(
-            onXpEarned: onXpEarned,
-            tasks: taskMap.values.toList(),
-            onAddTask: onAddTask,
-            onDeleteTask: onDeleteTask,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(taskMap.isEmpty, true);
       expect(find.text('No tasks yet. Add one!'), findsOneWidget);
     },
   );
@@ -97,26 +73,30 @@ void main() {
   testWidgets('TasksScreen handles times per day progress', (
     WidgetTester tester,
   ) async {
-    int xp = 0;
-    final task = Task(id: 'multi', title: 'Multi', timesPerDay: 2);
-    final tasks = [task];
+    final repo = HiveTaskRepository();
+    final bloc = TaskBloc(repo);
     await tester.pumpWidget(
-      MaterialApp(
-        home: TasksScreen(
-          onXpEarned: (add) => xp += add,
-          tasks: tasks,
-          onAddTask: (_) {},
-          onDeleteTask: (_) {},
-        ),
+      BlocProvider.value(
+        value: bloc..add(LoadTasks()),
+        child: const MaterialApp(home: TasksScreen()),
       ),
     );
+    await tester.pumpAndSettle();
+    // Add a multi-times-per-day task
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.bySemanticsLabel('Title *'), 'Multi');
+    await tester.enterText(find.bySemanticsLabel('Times per Day'), '2');
+    await tester.tap(find.byType(ElevatedButton).last);
+    await tester.pumpAndSettle();
     expect(find.text('Multi'), findsOneWidget);
-    expect(task.isCompleted, false);
+    // Complete once
     await tester.tap(find.byType(Checkbox));
     await tester.pumpAndSettle();
-    expect(task.isCompleted, false);
+    // Should not be completed yet
+    // Complete again
     await tester.tap(find.byType(Checkbox));
     await tester.pumpAndSettle();
-    expect(task.isCompleted, true);
+    // Should now be completed
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/task.dart';
 import '../repositories/hive_task_repository.dart';
+import 'package:hive/hive.dart';
 
 abstract class TaskEvent {}
 
@@ -14,6 +15,11 @@ class AddTask extends TaskEvent {
 class DeleteTask extends TaskEvent {
   final String id;
   DeleteTask(this.id);
+}
+
+class UpdateTask extends TaskEvent {
+  final Task task;
+  UpdateTask(this.task);
 }
 
 abstract class TaskState {}
@@ -39,6 +45,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     });
     on<DeleteTask>((event, emit) async {
       await repository.deleteTask(event.id);
+      final tasks = await repository.getTasks();
+      emit(TasksLoaded(tasks));
+    });
+    on<UpdateTask>((event, emit) async {
+      final box = await Hive.openBox<Task>('tasks');
+      await box.put(event.task.id, event.task);
       final tasks = await repository.getTasks();
       emit(TasksLoaded(tasks));
     });

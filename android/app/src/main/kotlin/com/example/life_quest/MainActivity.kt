@@ -1,4 +1,4 @@
-package com.example.life_quest
+package com.example.task_tamer
 
 import io.flutter.embedding.android.FlutterActivity
 

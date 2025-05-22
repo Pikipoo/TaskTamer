@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:life_quest/screens/tasks_screen.dart';
-import 'package:life_quest/models/task.dart';
+import 'package:task_tamer/screens/tasks_screen.dart';
+import 'package:task_tamer/models/task.dart';
 
 void main() {
   testWidgets('TasksScreen renders, adds, completes, edits, and deletes a task', (WidgetTester tester) async {

@@ -1,6 +1,6 @@
 {
-    "name": "life_quest",
-    "short_name": "life_quest",
+    "name": "task_tamer",
+    "short_name": "task_tamer",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

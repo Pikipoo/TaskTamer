@@ -29,10 +29,7 @@ class UserOperationSuccess extends UserState {
   final String message;
   final UserProfile userProfile;
 
-  const UserOperationSuccess({
-    required this.message,
-    required this.userProfile,
-  });
+  const UserOperationSuccess({required this.message, required this.userProfile});
 
   @override
   List<Object> get props => [message, userProfile];

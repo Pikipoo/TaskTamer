@@ -26,9 +26,7 @@ class AppDrawer extends StatelessWidget {
                     child: userProfile.avatarPath != null
                         ? Image.asset(userProfile.avatarPath!)
                         : Text(
-                            userProfile.name.isNotEmpty
-                                ? userProfile.name[0].toUpperCase()
-                                : 'U',
+                            userProfile.name.isNotEmpty ? userProfile.name[0].toUpperCase() : 'U',
                             style: const TextStyle(fontSize: 24),
                           ),
                   ),
@@ -38,9 +36,7 @@ class AppDrawer extends StatelessWidget {
               return const UserAccountsDrawerHeader(
                 accountName: Text('Loading...'),
                 accountEmail: Text(''),
-                currentAccountPicture: CircleAvatar(
-                  child: Icon(Icons.person),
-                ),
+                currentAccountPicture: CircleAvatar(child: Icon(Icons.person)),
               );
             },
           ),
@@ -63,10 +59,7 @@ class AppDrawer extends StatelessWidget {
           const Spacer(),
           const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text(
-              'TaskTamer v1.0.0',
-              style: TextStyle(color: Colors.grey),
-            ),
+            child: Text('TaskTamer v1.0.0', style: TextStyle(color: Colors.grey)),
           ),
         ],
       ),

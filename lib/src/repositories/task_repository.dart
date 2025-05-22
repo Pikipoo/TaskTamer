@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:hive/hive.dart';
 import 'package:task_tamer/src/models/task.dart';
 import 'package:uuid/uuid.dart';
@@ -15,9 +16,7 @@ class TaskRepository {
   }
 
   Future<List<Task>> getAllTasks() async {
-    return _box.values
-        .map((json) => Task.fromJson(Map<String, dynamic>.from(json)))
-        .toList();
+    return _box.values.map((json) => Task.fromJson(Map<String, dynamic>.from(json))).toList();
   }
 
   Future<Task?> getTaskById(String id) async {
@@ -133,7 +132,6 @@ class TaskRepository {
           baseTime.minute,
         );
       case RepeatFrequency.none:
-      default:
         return baseTime;
     }
   }

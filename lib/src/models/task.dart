@@ -60,37 +60,29 @@ class Task extends Equatable {
 
   Task incrementCompletedTimes() {
     final newCompletedTimes = completedTimes + 1;
-    final newIsCompleted = timesPerDay != null
-        ? newCompletedTimes >= timesPerDay!
-        : true;
+    final newIsCompleted = timesPerDay != null ? newCompletedTimes >= timesPerDay! : true;
 
-    return copyWith(
-      completedTimes: newCompletedTimes,
-      isCompleted: newIsCompleted,
-    );
+    return copyWith(completedTimes: newCompletedTimes, isCompleted: newIsCompleted);
   }
 
   Task resetCompletedTimes() {
-    return copyWith(
-      completedTimes: 0,
-      isCompleted: false,
-    );
+    return copyWith(completedTimes: 0, isCompleted: false);
   }
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        description,
-        creationDate,
-        dueDate,
-        repeatFrequency,
-        repeatValue,
-        timesPerDay,
-        completedTimes,
-        notificationTimes,
-        isCompleted,
-      ];
+    id,
+    title,
+    description,
+    creationDate,
+    dueDate,
+    repeatFrequency,
+    repeatValue,
+    timesPerDay,
+    completedTimes,
+    notificationTimes,
+    isCompleted,
+  ];
 
   Map<String, dynamic> toJson() {
     return {
@@ -125,9 +117,7 @@ class Task extends Equatable {
       timesPerDay: json['timesPerDay'],
       completedTimes: json['completedTimes'] ?? 0,
       notificationTimes: json['notificationTimes'] != null
-          ? (json['notificationTimes'] as List)
-              .map((e) => DateTime.parse(e))
-              .toList()
+          ? (json['notificationTimes'] as List).map((e) => DateTime.parse(e)).toList()
           : null,
       isCompleted: json['isCompleted'] ?? false,
     );
@@ -190,11 +180,4 @@ class Task extends Equatable {
   }
 }
 
-enum RepeatFrequency {
-  none,
-  hourly,
-  daily,
-  weekly,
-  monthly,
-  yearly,
-}
+enum RepeatFrequency { none, hourly, daily, weekly, monthly, yearly }

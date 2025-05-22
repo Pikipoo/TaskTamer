@@ -48,11 +48,7 @@ void main() {
         imagePath: 'assets/images/creatures/flufkin.png',
       );
 
-      final updatedCreature = creature.copyWith(
-        name: 'Super Fluffy',
-        level: 2,
-        isUnlocked: true,
-      );
+      final updatedCreature = creature.copyWith(name: 'Super Fluffy', level: 2, isUnlocked: true);
 
       expect(updatedCreature.id, '1');
       expect(updatedCreature.name, 'Super Fluffy');

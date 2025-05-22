@@ -9,9 +9,17 @@ import 'package:task_tamer/src/repositories/creature_repository.dart';
 
 class MockCreatureRepository extends Mock implements CreatureRepository {}
 
+// Define fake classes for Mocktail fallback values
+class FakeCreature extends Fake implements Creature {}
+
 void main() {
   late MockCreatureRepository creatureRepository;
   late CreatureBloc creatureBloc;
+
+  // Register fallback values for Mocktail
+  setUpAll(() {
+    registerFallbackValue(FakeCreature());
+  });
 
   final testCreature1 = Creature(
     id: '1',
@@ -33,16 +41,11 @@ void main() {
     isUnlocked: false,
   );
 
-  final updatedCreature = testCreature1.copyWith(
-    level: 2,
-    experiencePoints: 60,
-  );
+  final updatedCreature = testCreature1.copyWith(level: 2, experiencePoints: 60);
 
   setUp(() {
     creatureRepository = MockCreatureRepository();
-    creatureBloc = CreatureBloc(
-      creatureRepository: creatureRepository,
-    );
+    creatureBloc = CreatureBloc(creatureRepository: creatureRepository);
   });
 
   tearDown(() {
@@ -55,28 +58,29 @@ void main() {
 
   group('InitializeDefaultCreatures', () {
     blocTest<CreatureBloc, CreatureState>(
-      'emits no states when initialization is successful',
+      'emits [CreatureLoading] when initialization is successful',
       build: () {
-        when(() => creatureRepository.initializeDefaultCreatures())
-            .thenAnswer((_) async => {});
+        when(() => creatureRepository.initializeDefaultCreatures()).thenAnswer((_) async => {});
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const InitializeDefaultCreatures()),
-      expect: () => [],
+      expect: () => [const CreatureLoading()],
       verify: (_) {
         verify(() => creatureRepository.initializeDefaultCreatures()).called(1);
       },
     );
 
     blocTest<CreatureBloc, CreatureState>(
-      'emits [CreatureOperationFailure] when initialization fails',
+      'emits [CreatureLoading, CreatureOperationFailure] when initialization fails',
       build: () {
-        when(() => creatureRepository.initializeDefaultCreatures())
-            .thenThrow(Exception('Failed to initialize creatures'));
+        when(
+          () => creatureRepository.initializeDefaultCreatures(),
+        ).thenThrow(Exception('Failed to initialize creatures'));
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const InitializeDefaultCreatures()),
       expect: () => [
+        const CreatureLoading(),
         const CreatureOperationFailure('Exception: Failed to initialize creatures'),
       ],
     );
@@ -86,8 +90,9 @@ void main() {
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreaturesLoaded] when LoadCreatures is successful',
       build: () {
-        when(() => creatureRepository.getAllCreatures())
-            .thenAnswer((_) async => [testCreature1, testCreature2]);
+        when(
+          () => creatureRepository.getAllCreatures(),
+        ).thenAnswer((_) async => [testCreature1, testCreature2]);
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const LoadCreatures()),
@@ -103,8 +108,9 @@ void main() {
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreatureOperationFailure] when LoadCreatures fails',
       build: () {
-        when(() => creatureRepository.getAllCreatures())
-            .thenThrow(Exception('Failed to load creatures'));
+        when(
+          () => creatureRepository.getAllCreatures(),
+        ).thenThrow(Exception('Failed to load creatures'));
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const LoadCreatures()),
@@ -119,10 +125,12 @@ void main() {
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreaturesLoaded] when AddExperienceToCreature is successful',
       build: () {
-        when(() => creatureRepository.addExperiencePoints('1', 30))
-            .thenAnswer((_) async => updatedCreature);
-        when(() => creatureRepository.getAllCreatures())
-            .thenAnswer((_) async => [updatedCreature, testCreature2]);
+        when(
+          () => creatureRepository.addExperiencePoints('1', 30),
+        ).thenAnswer((_) async => updatedCreature);
+        when(
+          () => creatureRepository.getAllCreatures(),
+        ).thenAnswer((_) async => [updatedCreature, testCreature2]);
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const AddExperienceToCreature('1', 30)),
@@ -139,8 +147,9 @@ void main() {
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreatureOperationFailure] when AddExperienceToCreature fails',
       build: () {
-        when(() => creatureRepository.addExperiencePoints('1', 30))
-            .thenThrow(Exception('Failed to add experience points'));
+        when(
+          () => creatureRepository.addExperiencePoints('1', 30),
+        ).thenThrow(Exception('Failed to add experience points'));
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const AddExperienceToCreature('1', 30)),
@@ -155,30 +164,29 @@ void main() {
     final unlockedCreature = testCreature2.copyWith(isUnlocked: true);
 
     blocTest<CreatureBloc, CreatureState>(
-      'emits [CreatureLoading, CreaturesLoaded] when UnlockCreature is successful',
+      'emits [CreatureLoading, CreatureOperationSuccess] when UnlockCreature is successful',
       build: () {
-        when(() => creatureRepository.unlockCreature('2'))
-            .thenAnswer((_) async => unlockedCreature);
-        when(() => creatureRepository.getAllCreatures())
-            .thenAnswer((_) async => [testCreature1, unlockedCreature]);
+        when(
+          () => creatureRepository.unlockCreature('2'),
+        ).thenAnswer((_) async => unlockedCreature);
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const UnlockCreature('2')),
       expect: () => [
         const CreatureLoading(),
-        CreaturesLoaded([testCreature1, unlockedCreature]),
+        CreatureOperationSuccess(message: 'Bubbles unlocked!', creature: unlockedCreature),
       ],
       verify: (_) {
         verify(() => creatureRepository.unlockCreature('2')).called(1);
-        verify(() => creatureRepository.getAllCreatures()).called(1);
       },
     );
 
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreatureOperationFailure] when UnlockCreature fails',
       build: () {
-        when(() => creatureRepository.unlockCreature('2'))
-            .thenThrow(Exception('Failed to unlock creature'));
+        when(
+          () => creatureRepository.unlockCreature('2'),
+        ).thenThrow(Exception('Failed to unlock creature'));
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const UnlockCreature('2')),
@@ -195,10 +203,12 @@ void main() {
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreaturesLoaded] when RenameCreature is successful',
       build: () {
-        when(() => creatureRepository.renameCreature('1', 'Super Fluffy'))
-            .thenAnswer((_) async => renamedCreature);
-        when(() => creatureRepository.getAllCreatures())
-            .thenAnswer((_) async => [renamedCreature, testCreature2]);
+        when(
+          () => creatureRepository.renameCreature('1', 'Super Fluffy'),
+        ).thenAnswer((_) async => renamedCreature);
+        when(
+          () => creatureRepository.getAllCreatures(),
+        ).thenAnswer((_) async => [renamedCreature, testCreature2]);
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const RenameCreature('1', 'Super Fluffy')),
@@ -215,8 +225,9 @@ void main() {
     blocTest<CreatureBloc, CreatureState>(
       'emits [CreatureLoading, CreatureOperationFailure] when RenameCreature fails',
       build: () {
-        when(() => creatureRepository.renameCreature('1', 'Super Fluffy'))
-            .thenThrow(Exception('Failed to rename creature'));
+        when(
+          () => creatureRepository.renameCreature('1', 'Super Fluffy'),
+        ).thenThrow(Exception('Failed to rename creature'));
         return creatureBloc;
       },
       act: (bloc) => bloc.add(const RenameCreature('1', 'Super Fluffy')),

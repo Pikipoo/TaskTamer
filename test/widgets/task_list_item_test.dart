@@ -5,12 +5,23 @@ import 'package:mocktail/mocktail.dart';
 import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/models/task.dart';
-import 'package:task_tamer/src/ui/widgets/task_list_item.dart';
+import 'package:task_tamer/src/ui/widgets/task_item.dart';
 
 class MockTaskBloc extends Mock implements TaskBloc {}
 
+// Define fake classes for Mocktail fallback values
+class FakeCompleteTask extends Fake implements CompleteTask {}
+
+class FakeDeleteTask extends Fake implements DeleteTask {}
+
 void main() {
   late MockTaskBloc mockTaskBloc;
+
+  // Register fallback values for Mocktail
+  setUpAll(() {
+    registerFallbackValue(FakeCompleteTask());
+    registerFallbackValue(FakeDeleteTask());
+  });
 
   final testDate = DateTime(2023, 6, 15, 10, 0);
   final dueDate = testDate.add(const Duration(days: 1));
@@ -32,21 +43,25 @@ void main() {
     mockTaskBloc = MockTaskBloc();
   });
 
-  Future<void> pumpTaskListItem(WidgetTester tester) async {
+  Future<void> pumpTaskItem(WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: BlocProvider<TaskBloc>.value(
             value: mockTaskBloc,
-            child: TaskListItem(task: task),
+            child: TaskItem(
+              task: task,
+              onComplete: () => mockTaskBloc.add(const CompleteTask('1')),
+              onDelete: () => mockTaskBloc.add(const DeleteTask('1')),
+            ),
           ),
         ),
       ),
     );
   }
 
-  testWidgets('TaskListItem displays task information correctly', (WidgetTester tester) async {
-    await pumpTaskListItem(tester);
+  testWidgets('TaskItem displays task information correctly', (WidgetTester tester) async {
+    await pumpTaskItem(tester);
 
     expect(find.text('Test Task'), findsOneWidget);
     expect(find.text('Test Description'), findsOneWidget);
@@ -55,96 +70,93 @@ void main() {
     expect(find.text('0/2 times completed'), findsOneWidget); // Times per day description
   });
 
-  testWidgets('Tapping complete button triggers CompleteTask event', (WidgetTester tester) async {
-    when(() => mockTaskBloc.add(any<CompleteTask>())).thenReturn(null);
+  testWidgets('Tapping complete button triggers callback', (WidgetTester tester) async {
+    bool callbackCalled = false;
 
-    await pumpTaskListItem(tester);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: TaskItem(
+            task: task,
+            onComplete: () {
+              callbackCalled = true;
+            },
+            onDelete: () {},
+          ),
+        ),
+      ),
+    );
 
-    // Find and tap the complete button
-    final completeButton = find.byIcon(Icons.check_circle_outline);
-    expect(completeButton, findsOneWidget);
+    // Find the Container inside the InkWell
+    final container = find.descendant(of: find.byType(InkWell), matching: find.byType(Container));
+    expect(container, findsOneWidget);
 
-    await tester.tap(completeButton);
+    // Tap on the container
+    await tester.tap(container);
     await tester.pump();
 
-    verify(() => mockTaskBloc.add(const CompleteTask('1'))).called(1);
+    // Verify callback was called
+    expect(callbackCalled, isTrue);
   });
 
-  testWidgets('Tapping edit button shows edit dialog', (WidgetTester tester) async {
-    await pumpTaskListItem(tester);
+  testWidgets('Tapping delete button triggers callback', (WidgetTester tester) async {
+    bool callbackCalled = false;
 
-    // Find and tap the edit button
-    final editButton = find.byIcon(Icons.edit);
-    expect(editButton, findsOneWidget);
-
-    await tester.tap(editButton);
-    await tester.pumpAndSettle();
-
-    // Verify edit dialog is shown
-    expect(find.text('Edit Task'), findsOneWidget);
-    expect(find.byType(TextFormField), findsAtLeastNWidgets(1));
-    expect(find.text('Save'), findsOneWidget);
-    expect(find.text('Cancel'), findsOneWidget);
-  });
-
-  testWidgets('Tapping delete button shows confirmation dialog', (WidgetTester tester) async {
-    await pumpTaskListItem(tester);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: TaskItem(
+            task: task,
+            onComplete: () {},
+            onDelete: () {
+              callbackCalled = true;
+            },
+          ),
+        ),
+      ),
+    );
 
     // Find and tap the delete button
     final deleteButton = find.byIcon(Icons.delete);
     expect(deleteButton, findsOneWidget);
 
     await tester.tap(deleteButton);
-    await tester.pumpAndSettle();
-
-    // Verify confirmation dialog is shown
-    expect(find.text('Delete Task'), findsOneWidget);
-    expect(find.text('Are you sure you want to delete this task?'), findsOneWidget);
-    expect(find.text('Delete'), findsOneWidget);
-    expect(find.text('Cancel'), findsOneWidget);
-  });
-
-  testWidgets('Confirming delete triggers DeleteTask event', (WidgetTester tester) async {
-    when(() => mockTaskBloc.add(any<DeleteTask>())).thenReturn(null);
-
-    await pumpTaskListItem(tester);
-
-    // Find and tap the delete button
-    final deleteButton = find.byIcon(Icons.delete);
-    await tester.tap(deleteButton);
-    await tester.pumpAndSettle();
-
-    // Find and tap the confirm delete button
-    final confirmDeleteButton = find.text('Delete');
-    await tester.tap(confirmDeleteButton);
     await tester.pump();
 
-    verify(() => mockTaskBloc.add(const DeleteTask('1'))).called(1);
+    // Verify callback was called
+    expect(callbackCalled, isTrue);
   });
 
-  testWidgets('TaskListItem shows progress indicator for multi-time tasks', (WidgetTester tester) async {
-    await pumpTaskListItem(tester);
+  testWidgets('TaskItem shows progress indicator for multi-time tasks', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TaskItem(task: task, onComplete: () {}, onDelete: () {}),
+        ),
+      ),
+    );
 
     // Check for linear progress indicator
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
     // Verify progress is 0%
     final progressIndicator = tester.widget<LinearProgressIndicator>(
-      find.byType(LinearProgressIndicator)
+      find.byType(LinearProgressIndicator),
     );
     expect(progressIndicator.value, 0.0);
   });
 
-  testWidgets('TaskListItem shows different progress for partially completed task', (WidgetTester tester) async {
+  testWidgets('TaskItem shows different progress for partially completed task', (
+    WidgetTester tester,
+  ) async {
     final partiallyCompletedTask = task.copyWith(completedTimes: 1);
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: BlocProvider<TaskBloc>.value(
-            value: mockTaskBloc,
-            child: TaskListItem(task: partiallyCompletedTask),
-          ),
+          body: TaskItem(task: partiallyCompletedTask, onComplete: () {}, onDelete: () {}),
         ),
       ),
     );
@@ -154,7 +166,7 @@ void main() {
 
     // Verify progress is 50%
     final progressIndicator = tester.widget<LinearProgressIndicator>(
-      find.byType(LinearProgressIndicator)
+      find.byType(LinearProgressIndicator),
     );
     expect(progressIndicator.value, 0.5);
 

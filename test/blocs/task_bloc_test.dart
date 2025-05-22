@@ -5,19 +5,30 @@ import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/blocs/task/task_state.dart';
 import 'package:task_tamer/src/models/task.dart';
+import 'package:task_tamer/src/models/user_profile.dart';
 import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
 
 class MockTaskRepository extends Mock implements TaskRepository {}
+
 class MockUserRepository extends Mock implements UserRepository {}
+
 class MockNotificationService extends Mock implements NotificationService {}
+
+// Define fake classes for Mocktail fallback values
+class FakeTask extends Fake implements Task {}
 
 void main() {
   late MockTaskRepository taskRepository;
   late MockUserRepository userRepository;
   late MockNotificationService notificationService;
   late TaskBloc taskBloc;
+
+  // Register fallback values for Mocktail
+  setUpAll(() {
+    registerFallbackValue(FakeTask());
+  });
 
   final testDate = DateTime(2023, 6, 15, 10, 0);
 
@@ -28,14 +39,9 @@ void main() {
     creationDate: testDate,
   );
 
-  final updatedTask = testTask.copyWith(
-    title: 'Updated Test Task',
-  );
+  final updatedTask = testTask.copyWith(title: 'Updated Test Task');
 
-  final completedTask = testTask.copyWith(
-    completedTimes: 1,
-    isCompleted: true,
-  );
+  final completedTask = testTask.copyWith(completedTimes: 1, isCompleted: true);
 
   setUp(() {
     taskRepository = MockTaskRepository();
@@ -60,8 +66,7 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when LoadTasks is successful',
       build: () {
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [testTask]);
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [testTask]);
         return taskBloc;
       },
       act: (bloc) => bloc.add(const LoadTasks()),
@@ -77,8 +82,7 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when LoadTasks fails',
       build: () {
-        when(() => taskRepository.getAllTasks())
-            .thenThrow(Exception('Failed to load tasks'));
+        when(() => taskRepository.getAllTasks()).thenThrow(Exception('Failed to load tasks'));
         return taskBloc;
       },
       act: (bloc) => bloc.add(const LoadTasks()),
@@ -115,19 +119,21 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when AddTask is successful',
       build: () {
-        when(() => taskRepository.createTask(
-              title: taskToAdd.title,
-              description: taskToAdd.description,
-              dueDate: taskToAdd.dueDate,
-              repeatFrequency: taskToAdd.repeatFrequency,
-              repeatValue: taskToAdd.repeatValue,
-              timesPerDay: taskToAdd.timesPerDay,
-              notificationTimes: taskToAdd.notificationTimes,
-            )).thenAnswer((_) async => createdTask);
-        when(() => notificationService.scheduleTaskNotification(createdTask))
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [testTask, createdTask]);
+        when(
+          () => taskRepository.createTask(
+            title: taskToAdd.title,
+            description: taskToAdd.description,
+            dueDate: taskToAdd.dueDate,
+            repeatFrequency: taskToAdd.repeatFrequency,
+            repeatValue: taskToAdd.repeatValue,
+            timesPerDay: taskToAdd.timesPerDay,
+            notificationTimes: taskToAdd.notificationTimes,
+          ),
+        ).thenAnswer((_) async => createdTask);
+        when(
+          () => notificationService.scheduleTaskNotification(createdTask),
+        ).thenAnswer((_) async {});
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [testTask, createdTask]);
         return taskBloc;
       },
       act: (bloc) => bloc.add(taskToAdd),
@@ -136,15 +142,17 @@ void main() {
         TasksLoaded([testTask, createdTask]),
       ],
       verify: (_) {
-        verify(() => taskRepository.createTask(
-              title: taskToAdd.title,
-              description: taskToAdd.description,
-              dueDate: taskToAdd.dueDate,
-              repeatFrequency: taskToAdd.repeatFrequency,
-              repeatValue: taskToAdd.repeatValue,
-              timesPerDay: taskToAdd.timesPerDay,
-              notificationTimes: taskToAdd.notificationTimes,
-            )).called(1);
+        verify(
+          () => taskRepository.createTask(
+            title: taskToAdd.title,
+            description: taskToAdd.description,
+            dueDate: taskToAdd.dueDate,
+            repeatFrequency: taskToAdd.repeatFrequency,
+            repeatValue: taskToAdd.repeatValue,
+            timesPerDay: taskToAdd.timesPerDay,
+            notificationTimes: taskToAdd.notificationTimes,
+          ),
+        ).called(1);
         verify(() => notificationService.scheduleTaskNotification(createdTask)).called(1);
         verify(() => taskRepository.getAllTasks()).called(1);
       },
@@ -153,15 +161,17 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when AddTask fails',
       build: () {
-        when(() => taskRepository.createTask(
-              title: taskToAdd.title,
-              description: taskToAdd.description,
-              dueDate: taskToAdd.dueDate,
-              repeatFrequency: taskToAdd.repeatFrequency,
-              repeatValue: taskToAdd.repeatValue,
-              timesPerDay: taskToAdd.timesPerDay,
-              notificationTimes: taskToAdd.notificationTimes,
-            )).thenThrow(Exception('Failed to create task'));
+        when(
+          () => taskRepository.createTask(
+            title: taskToAdd.title,
+            description: taskToAdd.description,
+            dueDate: taskToAdd.dueDate,
+            repeatFrequency: taskToAdd.repeatFrequency,
+            repeatValue: taskToAdd.repeatValue,
+            timesPerDay: taskToAdd.timesPerDay,
+            notificationTimes: taskToAdd.notificationTimes,
+          ),
+        ).thenThrow(Exception('Failed to create task'));
         return taskBloc;
       },
       act: (bloc) => bloc.add(taskToAdd),
@@ -176,12 +186,11 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when UpdateTask is successful',
       build: () {
-        when(() => taskRepository.updateTask(updatedTask))
-            .thenAnswer((_) async => updatedTask);
-        when(() => notificationService.updateTaskNotifications(updatedTask))
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [updatedTask]);
+        when(() => taskRepository.updateTask(updatedTask)).thenAnswer((_) async => updatedTask);
+        when(
+          () => notificationService.updateTaskNotifications(updatedTask),
+        ).thenAnswer((_) async {});
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [updatedTask]);
         return taskBloc;
       },
       act: (bloc) => bloc.add(UpdateTask(updatedTask)),
@@ -199,8 +208,9 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when UpdateTask fails',
       build: () {
-        when(() => taskRepository.updateTask(updatedTask))
-            .thenThrow(Exception('Failed to update task'));
+        when(
+          () => taskRepository.updateTask(updatedTask),
+        ).thenThrow(Exception('Failed to update task'));
         return taskBloc;
       },
       act: (bloc) => bloc.add(UpdateTask(updatedTask)),
@@ -215,19 +225,13 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when DeleteTask is successful',
       build: () {
-        when(() => notificationService.cancelTaskNotifications('1'))
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.deleteTask('1'))
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => []);
+        when(() => notificationService.cancelTaskNotifications('1')).thenAnswer((_) async {});
+        when(() => taskRepository.deleteTask('1')).thenAnswer((_) async {});
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => []);
         return taskBloc;
       },
       act: (bloc) => bloc.add(const DeleteTask('1')),
-      expect: () => [
-        const TaskLoading(),
-        const TasksLoaded([]),
-      ],
+      expect: () => [const TaskLoading(), const TasksLoaded([])],
       verify: (_) {
         verify(() => notificationService.cancelTaskNotifications('1')).called(1);
         verify(() => taskRepository.deleteTask('1')).called(1);
@@ -238,10 +242,8 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when DeleteTask fails',
       build: () {
-        when(() => notificationService.cancelTaskNotifications('1'))
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.deleteTask('1'))
-            .thenThrow(Exception('Failed to delete task'));
+        when(() => notificationService.cancelTaskNotifications('1')).thenAnswer((_) async {});
+        when(() => taskRepository.deleteTask('1')).thenThrow(Exception('Failed to delete task'));
         return taskBloc;
       },
       act: (bloc) => bloc.add(const DeleteTask('1')),
@@ -256,12 +258,12 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when CompleteTask is successful',
       build: () {
-        when(() => taskRepository.completeTask('1'))
-            .thenAnswer((_) async => completedTask);
-        when(() => userRepository.addExperiencePoints(10))
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [completedTask]);
+        when(() => taskRepository.completeTask('1')).thenAnswer((_) async => completedTask);
+        when(() => userRepository.addExperiencePoints(10)).thenAnswer(
+          (_) async =>
+              const UserProfile(id: 'user1', name: 'Test User', experiencePoints: 10, level: 1),
+        );
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [completedTask]);
         return taskBloc;
       },
       act: (bloc) => bloc.add(const CompleteTask('1')),
@@ -279,22 +281,14 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'does not award XP if task is not fully completed',
       build: () {
-        final partialCompletedTask = testTask.copyWith(
-          completedTimes: 1,
-          isCompleted: false,
-        );
+        final partialCompletedTask = testTask.copyWith(completedTimes: 1, isCompleted: false);
 
-        when(() => taskRepository.completeTask('1'))
-            .thenAnswer((_) async => partialCompletedTask);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [partialCompletedTask]);
+        when(() => taskRepository.completeTask('1')).thenAnswer((_) async => partialCompletedTask);
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [partialCompletedTask]);
         return taskBloc;
       },
       act: (bloc) => bloc.add(const CompleteTask('1')),
-      expect: () => [
-        const TaskLoading(),
-        isA<TasksLoaded>(),
-      ],
+      expect: () => [const TaskLoading(), isA<TasksLoaded>()],
       verify: (_) {
         verify(() => taskRepository.completeTask('1')).called(1);
         verifyNever(() => userRepository.addExperiencePoints(any()));
@@ -305,8 +299,9 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when CompleteTask fails',
       build: () {
-        when(() => taskRepository.completeTask('1'))
-            .thenThrow(Exception('Failed to complete task'));
+        when(
+          () => taskRepository.completeTask('1'),
+        ).thenThrow(Exception('Failed to complete task'));
         return taskBloc;
       },
       act: (bloc) => bloc.add(const CompleteTask('1')),
@@ -323,12 +318,9 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when ResetTaskCompletion is successful',
       build: () {
-        when(() => taskRepository.getTaskById('1'))
-            .thenAnswer((_) async => testTask);
-        when(() => taskRepository.updateTask(resetTask))
-            .thenAnswer((_) async => resetTask);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [resetTask]);
+        when(() => taskRepository.getTaskById('1')).thenAnswer((_) async => testTask);
+        when(() => taskRepository.updateTask(any())).thenAnswer((_) async => resetTask);
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [resetTask]);
         return taskBloc;
       },
       act: (bloc) => bloc.add(const ResetTaskCompletion('1')),
@@ -346,8 +338,7 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when ResetTaskCompletion fails',
       build: () {
-        when(() => taskRepository.getTaskById('1'))
-            .thenThrow(Exception('Failed to get task'));
+        when(() => taskRepository.getTaskById('1')).thenThrow(Exception('Failed to get task'));
         return taskBloc;
       },
       act: (bloc) => bloc.add(const ResetTaskCompletion('1')),
@@ -362,10 +353,8 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'emits [TasksLoaded] when state is TasksLoaded and operation is successful',
       build: () {
-        when(() => taskRepository.resetCompletedTasksIfNeeded())
-            .thenAnswer((_) async => null);
-        when(() => taskRepository.getAllTasks())
-            .thenAnswer((_) async => [testTask]);
+        when(() => taskRepository.resetCompletedTasksIfNeeded()).thenAnswer((_) async {});
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [testTask]);
         return taskBloc;
       },
       seed: () => TasksLoaded([completedTask]),
@@ -382,8 +371,7 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'does not emit any state when state is not TasksLoaded',
       build: () {
-        when(() => taskRepository.resetCompletedTasksIfNeeded())
-            .thenAnswer((_) async => null);
+        when(() => taskRepository.resetCompletedTasksIfNeeded()).thenAnswer((_) async {});
         return taskBloc;
       },
       seed: () => const TaskLoading(),
@@ -398,8 +386,9 @@ void main() {
     blocTest<TaskBloc, TaskState>(
       'does not emit error state when operation fails',
       build: () {
-        when(() => taskRepository.resetCompletedTasksIfNeeded())
-            .thenThrow(Exception('Failed to reset tasks'));
+        when(
+          () => taskRepository.resetCompletedTasksIfNeeded(),
+        ).thenThrow(Exception('Failed to reset tasks'));
         return taskBloc;
       },
       seed: () => TasksLoaded([completedTask]),

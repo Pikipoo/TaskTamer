@@ -64,13 +64,30 @@ class AddCreatureExperiencePoints extends CreatureEvent {
   final String creatureId;
   final int points;
 
-  const AddCreatureExperiencePoints({
-    required this.creatureId,
-    required this.points,
-  });
+  const AddCreatureExperiencePoints({required this.creatureId, required this.points});
 
   @override
   List<Object> get props => [creatureId, points];
+}
+
+class AddExperienceToCreature extends CreatureEvent {
+  final String creatureId;
+  final int points;
+
+  const AddExperienceToCreature(this.creatureId, this.points);
+
+  @override
+  List<Object> get props => [creatureId, points];
+}
+
+class RenameCreature extends CreatureEvent {
+  final String creatureId;
+  final String newName;
+
+  const RenameCreature(this.creatureId, this.newName);
+
+  @override
+  List<Object> get props => [creatureId, newName];
 }
 
 class InitializeDefaultCreatures extends CreatureEvent {

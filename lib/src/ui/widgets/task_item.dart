@@ -6,12 +6,7 @@ class TaskItem extends StatelessWidget {
   final VoidCallback onComplete;
   final VoidCallback onDelete;
 
-  const TaskItem({
-    super.key,
-    required this.task,
-    required this.onComplete,
-    required this.onDelete,
-  });
+  const TaskItem({super.key, required this.task, required this.onComplete, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +38,9 @@ class TaskItem extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
               children: [
                 if (task.dueDate != null)
                   _buildInfoChip(
@@ -53,17 +50,9 @@ class TaskItem extends StatelessWidget {
                     task.isOverdue() ? Colors.red : null,
                   ),
                 if (task.repeatFrequency != null && task.repeatFrequency != RepeatFrequency.none)
-                  _buildInfoChip(
-                    context,
-                    Icons.repeat,
-                    task.repeatDescription,
-                  ),
+                  _buildInfoChip(context, Icons.repeat, task.repeatDescription),
                 if (task.timesPerDay != null && task.timesPerDay! > 1)
-                  _buildInfoChip(
-                    context,
-                    Icons.check_circle_outline,
-                    task.timesPerDayDescription,
-                  ),
+                  _buildInfoChip(context, Icons.check_circle_outline, task.timesPerDayDescription),
               ],
             ),
             if (task.timesPerDay != null && task.timesPerDay! > 1)
@@ -72,18 +61,13 @@ class TaskItem extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: task.completionProgress,
                   minHeight: 8,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
-                  ),
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                 ),
               ),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: onDelete,
-        ),
+        trailing: IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
       ),
     );
   }
@@ -108,44 +92,27 @@ class TaskItem extends StatelessWidget {
           ),
         ),
         child: task.isCompleted
-            ? Icon(
-                Icons.check,
-                color: Theme.of(context).colorScheme.primary,
-              )
+            ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
             : null,
       ),
     );
   }
 
-  Widget _buildInfoChip(
-    BuildContext context,
-    IconData icon,
-    String label, [
-    Color? color,
-  ]) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Chip(
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-        avatar: Icon(
-          icon,
-          size: 16,
+  Widget _buildInfoChip(BuildContext context, IconData icon, String label, [Color? color]) {
+    return Chip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      labelPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+      avatar: Icon(icon, size: 16, color: color ?? Theme.of(context).colorScheme.onSurfaceVariant),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
           color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-        label: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        visualDensity: VisualDensity.compact,
       ),
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      visualDensity: VisualDensity.compact,
     );
   }
 }

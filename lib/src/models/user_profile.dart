@@ -37,10 +37,7 @@ class UserProfile extends Equatable {
     final newExperiencePoints = experiencePoints + points;
     // Simple level calculation: level = 1 + exp / 100 (rounded down)
     final newLevel = 1 + (newExperiencePoints ~/ 100);
-    return copyWith(
-      experiencePoints: newExperiencePoints,
-      level: newLevel,
-    );
+    return copyWith(experiencePoints: newExperiencePoints, level: newLevel);
   }
 
   int get experiencePointsForNextLevel => (level) * 100;

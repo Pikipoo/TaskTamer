@@ -45,10 +45,7 @@ class Creature extends Equatable {
     final newExperiencePoints = experiencePoints + points;
     // Simple level calculation: level = 1 + exp / 50 (rounded down)
     final newLevel = 1 + (newExperiencePoints ~/ 50);
-    return copyWith(
-      experiencePoints: newExperiencePoints,
-      level: newLevel,
-    );
+    return copyWith(experiencePoints: newExperiencePoints, level: newLevel);
   }
 
   Creature unlock() {
@@ -56,15 +53,7 @@ class Creature extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        id,
-        name,
-        species,
-        level,
-        experiencePoints,
-        imagePath,
-        isUnlocked,
-      ];
+  List<Object?> get props => [id, name, species, level, experiencePoints, imagePath, isUnlocked];
 
   Map<String, dynamic> toJson() {
     return {

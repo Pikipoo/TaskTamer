@@ -4,11 +4,7 @@ class ExperienceBar extends StatelessWidget {
   final int currentXP;
   final int maxXP;
 
-  const ExperienceBar({
-    super.key,
-    required this.currentXP,
-    required this.maxXP,
-  });
+  const ExperienceBar({super.key, required this.currentXP, required this.maxXP});
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +16,8 @@ class ExperienceBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'XP Progress',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Text(
-              '$currentXP / $maxXP',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text('XP Progress', style: Theme.of(context).textTheme.bodyMedium),
+            Text('$currentXP / $maxXP', style: Theme.of(context).textTheme.bodyMedium),
           ],
         ),
         const SizedBox(height: 8),
@@ -37,9 +27,7 @@ class ExperienceBar extends StatelessWidget {
             value: progress,
             minHeight: 12,
             backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.primary,
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
           ),
         ),
       ],

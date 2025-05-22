@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tamer/src/blocs/creature/creature_bloc.dart';
 import 'package:task_tamer/src/blocs/creature/creature_state.dart';
-import 'package:task_tamer/src/models/creature.dart';
 import 'package:task_tamer/src/ui/widgets/creature_card.dart';
 
 class CreaturesScreen extends StatelessWidget {
@@ -18,9 +17,7 @@ class CreaturesScreen extends StatelessWidget {
               : (state as UnlockedCreaturesLoaded).creatures;
 
           if (creatures.isEmpty) {
-            return const Center(
-              child: Text('No creatures yet. Complete tasks to unlock them!'),
-            );
+            return const Center(child: Text('No creatures yet. Complete tasks to unlock them!'));
           }
 
           final unlockedCreatures = creatures.where((c) => c.isUnlocked).toList();
@@ -31,10 +28,7 @@ class CreaturesScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Your Creatures',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Your Creatures', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 if (unlockedCreatures.isEmpty)
                   const Padding(
@@ -55,23 +49,16 @@ class CreaturesScreen extends StatelessWidget {
                     ),
                     itemCount: unlockedCreatures.length,
                     itemBuilder: (context, index) {
-                      return CreatureCard(
-                        creature: unlockedCreatures[index],
-                      );
+                      return CreatureCard(creature: unlockedCreatures[index]);
                     },
                   ),
                 const SizedBox(height: 24),
-                Text(
-                  'Locked Creatures',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Locked Creatures', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 if (lockedCreatures.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Center(
-                      child: Text('You\'ve unlocked all creatures. Great job!'),
-                    ),
+                    child: Center(child: Text('You\'ve unlocked all creatures. Great job!')),
                   )
                 else
                   GridView.builder(
@@ -85,10 +72,7 @@ class CreaturesScreen extends StatelessWidget {
                     ),
                     itemCount: lockedCreatures.length,
                     itemBuilder: (context, index) {
-                      return CreatureCard(
-                        creature: lockedCreatures[index],
-                        isLocked: true,
-                      );
+                      return CreatureCard(creature: lockedCreatures[index], isLocked: true);
                     },
                   ),
               ],
@@ -96,9 +80,7 @@ class CreaturesScreen extends StatelessWidget {
           );
         }
 
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }

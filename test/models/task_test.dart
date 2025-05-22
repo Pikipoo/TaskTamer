@@ -6,11 +6,7 @@ void main() {
     final currentDate = DateTime(2023, 6, 15, 10, 0);
 
     test('should create Task with required parameters', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
       expect(task.id, '1');
       expect(task.title, 'Test Task');
@@ -51,16 +47,9 @@ void main() {
     });
 
     test('copyWith should create a new instance with updated values', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
-      final updatedTask = task.copyWith(
-        title: 'Updated Task',
-        description: 'Added Description',
-      );
+      final updatedTask = task.copyWith(title: 'Updated Task', description: 'Added Description');
 
       expect(updatedTask.id, '1');
       expect(updatedTask.title, 'Updated Task');
@@ -87,11 +76,7 @@ void main() {
     });
 
     test('incrementCompletedTimes should mark single-time task as completed', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
       final updatedTask = task.incrementCompletedTimes();
       expect(updatedTask.completedTimes, 1);
@@ -182,34 +167,20 @@ void main() {
 
     test('getFormattedDueDate should return correct format', () {
       final dueDate = DateTime(2023, 6, 16, 10, 0);
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-        dueDate: dueDate,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate, dueDate: dueDate);
 
       expect(task.getFormattedDueDate(), 'Jun 16, 2023');
     });
 
     test('getFormattedDueDate should return "No due date" when null', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
       expect(task.getFormattedDueDate(), 'No due date');
     });
 
     test('getFormattedDueTime should return correct format', () {
       final dueDate = DateTime(2023, 6, 16, 14, 30);
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-        dueDate: dueDate,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate, dueDate: dueDate);
 
       expect(task.getFormattedDueTime(), '02:30 PM');
     });
@@ -260,28 +231,15 @@ void main() {
     });
 
     test('repeatDescription should return correct string for each frequency', () {
-      final baseTask = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-      );
+      final baseTask = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
-      final hourlyTask = baseTask.copyWith(
-        repeatFrequency: RepeatFrequency.hourly,
-        repeatValue: 1,
-      );
+      final hourlyTask = baseTask.copyWith(repeatFrequency: RepeatFrequency.hourly, repeatValue: 1);
       expect(hourlyTask.repeatDescription, 'Every 1 hour');
 
-      final dailyTask = baseTask.copyWith(
-        repeatFrequency: RepeatFrequency.daily,
-        repeatValue: 2,
-      );
+      final dailyTask = baseTask.copyWith(repeatFrequency: RepeatFrequency.daily, repeatValue: 2);
       expect(dailyTask.repeatDescription, 'Every 2 days');
 
-      final weeklyTask = baseTask.copyWith(
-        repeatFrequency: RepeatFrequency.weekly,
-        repeatValue: 1,
-      );
+      final weeklyTask = baseTask.copyWith(repeatFrequency: RepeatFrequency.weekly, repeatValue: 1);
       expect(weeklyTask.repeatDescription, 'Every 1 week');
 
       final monthlyTask = baseTask.copyWith(
@@ -290,15 +248,10 @@ void main() {
       );
       expect(monthlyTask.repeatDescription, 'Every 3 months');
 
-      final yearlyTask = baseTask.copyWith(
-        repeatFrequency: RepeatFrequency.yearly,
-        repeatValue: 1,
-      );
+      final yearlyTask = baseTask.copyWith(repeatFrequency: RepeatFrequency.yearly, repeatValue: 1);
       expect(yearlyTask.repeatDescription, 'Every 1 year');
 
-      final noRepeatTask = baseTask.copyWith(
-        repeatFrequency: RepeatFrequency.none,
-      );
+      final noRepeatTask = baseTask.copyWith(repeatFrequency: RepeatFrequency.none);
       expect(noRepeatTask.repeatDescription, 'Does not repeat');
 
       final nullRepeatTask = baseTask;
@@ -342,23 +295,13 @@ void main() {
     });
 
     test('completionProgress should return 1.0 for completed tasks', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-        isCompleted: true,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate, isCompleted: true);
 
       expect(task.completionProgress, 1.0);
     });
 
     test('completionProgress should return 0.0 for incomplete tasks', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        creationDate: currentDate,
-        isCompleted: false,
-      );
+      final task = Task(id: '1', title: 'Test Task', creationDate: currentDate, isCompleted: false);
 
       expect(task.completionProgress, 0.0);
     });

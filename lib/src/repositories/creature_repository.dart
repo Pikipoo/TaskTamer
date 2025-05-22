@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:hive/hive.dart';
 import 'package:task_tamer/src/models/creature.dart';
 import 'package:uuid/uuid.dart';
@@ -15,9 +16,7 @@ class CreatureRepository {
   }
 
   Future<List<Creature>> getAllCreatures() async {
-    return _box.values
-        .map((json) => Creature.fromJson(Map<String, dynamic>.from(json)))
-        .toList();
+    return _box.values.map((json) => Creature.fromJson(Map<String, dynamic>.from(json))).toList();
   }
 
   Future<List<Creature>> getUnlockedCreatures() async {
@@ -76,6 +75,18 @@ class CreatureRepository {
     }
 
     final updatedCreature = creature.addExperiencePoints(points);
+    await _box.put(id, updatedCreature.toJson());
+    return updatedCreature;
+  }
+
+  // Method to rename a creature
+  Future<Creature> renameCreature(String id, String newName) async {
+    final creature = await getCreatureById(id);
+    if (creature == null) {
+      throw Exception('Creature not found');
+    }
+
+    final updatedCreature = creature.copyWith(name: newName);
     await _box.put(id, updatedCreature.toJson());
     return updatedCreature;
   }

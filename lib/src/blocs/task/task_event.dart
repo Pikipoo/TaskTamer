@@ -33,14 +33,14 @@ class AddTask extends TaskEvent {
 
   @override
   List<Object?> get props => [
-        title,
-        description,
-        dueDate,
-        repeatFrequency,
-        repeatValue,
-        timesPerDay,
-        notificationTimes,
-      ];
+    title,
+    description,
+    dueDate,
+    repeatFrequency,
+    repeatValue,
+    timesPerDay,
+    notificationTimes,
+  ];
 }
 
 class UpdateTask extends TaskEvent {

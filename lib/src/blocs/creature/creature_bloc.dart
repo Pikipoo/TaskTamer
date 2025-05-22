@@ -7,8 +7,8 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
   final CreatureRepository _creatureRepository;
 
   CreatureBloc({required CreatureRepository creatureRepository})
-      : _creatureRepository = creatureRepository,
-        super(const CreatureInitial()) {
+    : _creatureRepository = creatureRepository,
+      super(const CreatureInitial()) {
     on<LoadCreatures>(_onLoadCreatures);
     on<LoadUnlockedCreatures>(_onLoadUnlockedCreatures);
     on<AddCreature>(_onAddCreature);
@@ -16,13 +16,12 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     on<DeleteCreature>(_onDeleteCreature);
     on<UnlockCreature>(_onUnlockCreature);
     on<AddCreatureExperiencePoints>(_onAddCreatureExperiencePoints);
+    on<AddExperienceToCreature>(_onAddExperienceToCreature);
+    on<RenameCreature>(_onRenameCreature);
     on<InitializeDefaultCreatures>(_onInitializeDefaultCreatures);
   }
 
-  Future<void> _onLoadCreatures(
-    LoadCreatures event,
-    Emitter<CreatureState> emit,
-  ) async {
+  Future<void> _onLoadCreatures(LoadCreatures event, Emitter<CreatureState> emit) async {
     emit(const CreatureLoading());
     try {
       final creatures = await _creatureRepository.getAllCreatures();
@@ -45,10 +44,7 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     }
   }
 
-  Future<void> _onAddCreature(
-    AddCreature event,
-    Emitter<CreatureState> emit,
-  ) async {
+  Future<void> _onAddCreature(AddCreature event, Emitter<CreatureState> emit) async {
     emit(const CreatureLoading());
     try {
       final creature = await _creatureRepository.addCreature(
@@ -58,36 +54,24 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
         isUnlocked: event.isUnlocked,
       );
 
-      emit(CreatureOperationSuccess(
-        message: 'Creature added successfully',
-        creature: creature,
-      ));
+      emit(CreatureOperationSuccess(message: 'Creature added successfully', creature: creature));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }
   }
 
-  Future<void> _onUpdateCreature(
-    UpdateCreature event,
-    Emitter<CreatureState> emit,
-  ) async {
+  Future<void> _onUpdateCreature(UpdateCreature event, Emitter<CreatureState> emit) async {
     emit(const CreatureLoading());
     try {
       final creature = await _creatureRepository.updateCreature(event.creature);
 
-      emit(CreatureOperationSuccess(
-        message: 'Creature updated successfully',
-        creature: creature,
-      ));
+      emit(CreatureOperationSuccess(message: 'Creature updated successfully', creature: creature));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }
   }
 
-  Future<void> _onDeleteCreature(
-    DeleteCreature event,
-    Emitter<CreatureState> emit,
-  ) async {
+  Future<void> _onDeleteCreature(DeleteCreature event, Emitter<CreatureState> emit) async {
     emit(const CreatureLoading());
     try {
       await _creatureRepository.deleteCreature(event.creatureId);
@@ -99,18 +83,12 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     }
   }
 
-  Future<void> _onUnlockCreature(
-    UnlockCreature event,
-    Emitter<CreatureState> emit,
-  ) async {
+  Future<void> _onUnlockCreature(UnlockCreature event, Emitter<CreatureState> emit) async {
     emit(const CreatureLoading());
     try {
       final creature = await _creatureRepository.unlockCreature(event.creatureId);
 
-      emit(CreatureOperationSuccess(
-        message: '${creature.name} unlocked!',
-        creature: creature,
-      ));
+      emit(CreatureOperationSuccess(message: '${creature.name} unlocked!', creature: creature));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }
@@ -135,15 +113,46 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
 
       if (updatedCreature.level > previousLevel) {
         // Creature leveled up
-        emit(CreatureOperationSuccess(
-          message: '${updatedCreature.name} leveled up to level ${updatedCreature.level}!',
-          creature: updatedCreature,
-        ));
+        emit(
+          CreatureOperationSuccess(
+            message: '${updatedCreature.name} leveled up to level ${updatedCreature.level}!',
+            creature: updatedCreature,
+          ),
+        );
       } else {
         // Just emit the current state to avoid UI flicker
         final creatures = await _creatureRepository.getAllCreatures();
         emit(CreaturesLoaded(creatures));
       }
+    } catch (e) {
+      emit(CreatureOperationFailure(e.toString()));
+    }
+  }
+
+  // Handler for AddExperienceToCreature event
+  Future<void> _onAddExperienceToCreature(
+    AddExperienceToCreature event,
+    Emitter<CreatureState> emit,
+  ) async {
+    emit(const CreatureLoading());
+    try {
+      await _creatureRepository.addExperiencePoints(event.creatureId, event.points);
+
+      final creatures = await _creatureRepository.getAllCreatures();
+      emit(CreaturesLoaded(creatures));
+    } catch (e) {
+      emit(CreatureOperationFailure(e.toString()));
+    }
+  }
+
+  // Handler for RenameCreature event
+  Future<void> _onRenameCreature(RenameCreature event, Emitter<CreatureState> emit) async {
+    emit(const CreatureLoading());
+    try {
+      await _creatureRepository.renameCreature(event.creatureId, event.newName);
+
+      final creatures = await _creatureRepository.getAllCreatures();
+      emit(CreaturesLoaded(creatures));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }
@@ -156,8 +165,6 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     emit(const CreatureLoading());
     try {
       await _creatureRepository.initializeDefaultCreatures();
-      final creatures = await _creatureRepository.getAllCreatures();
-      emit(CreaturesLoaded(creatures));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }

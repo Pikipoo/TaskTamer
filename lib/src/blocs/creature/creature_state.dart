@@ -38,10 +38,7 @@ class CreatureOperationSuccess extends CreatureState {
   final String message;
   final Creature? creature;
 
-  const CreatureOperationSuccess({
-    required this.message,
-    this.creature,
-  });
+  const CreatureOperationSuccess({required this.message, this.creature});
 
   @override
   List<Object?> get props => [message, creature];

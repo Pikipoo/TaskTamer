@@ -7,8 +7,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('End-to-end app tests', () {
-    testWidgets('Add a new task and verify it appears in the task list',
-        (WidgetTester tester) async {
+    testWidgets('Add a new task and verify it appears in the task list', (
+      WidgetTester tester,
+    ) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -26,10 +27,8 @@ void main() {
       expect(find.text('Add Task'), findsOneWidget);
 
       // Fill in task details
-      await tester.enterText(
-          find.byType(TextFormField).at(0), 'Integration Test Task');
-      await tester.enterText(
-          find.byType(TextFormField).at(1), 'Description for integration test');
+      await tester.enterText(find.byType(TextFormField).at(0), 'Integration Test Task');
+      await tester.enterText(find.byType(TextFormField).at(1), 'Description for integration test');
 
       // Save the task
       await tester.tap(find.text('Save'));
@@ -40,8 +39,9 @@ void main() {
       expect(find.text('Description for integration test'), findsOneWidget);
     });
 
-    testWidgets('Complete a task and verify it gets marked as completed',
-        (WidgetTester tester) async {
+    testWidgets('Complete a task and verify it gets marked as completed', (
+      WidgetTester tester,
+    ) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -50,8 +50,7 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-          find.byType(TextFormField).at(0), 'Task to Complete');
+      await tester.enterText(find.byType(TextFormField).at(0), 'Task to Complete');
 
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
@@ -68,8 +67,7 @@ void main() {
       expect(find.byIcon(Icons.check_circle).last, findsOneWidget);
     });
 
-    testWidgets('Navigate between screens using bottom navigation',
-        (WidgetTester tester) async {
+    testWidgets('Navigate between screens using bottom navigation', (WidgetTester tester) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -99,8 +97,7 @@ void main() {
       expect(find.text('My Tasks'), findsOneWidget);
     });
 
-    testWidgets('Delete a task with confirmation dialog',
-        (WidgetTester tester) async {
+    testWidgets('Delete a task with confirmation dialog', (WidgetTester tester) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -109,8 +106,7 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-          find.byType(TextFormField).at(0), 'Task to Delete');
+      await tester.enterText(find.byType(TextFormField).at(0), 'Task to Delete');
 
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
@@ -135,8 +131,7 @@ void main() {
       expect(find.text('Task to Delete'), findsNothing);
     });
 
-    testWidgets('Edit a task and verify changes are applied',
-        (WidgetTester tester) async {
+    testWidgets('Edit a task and verify changes are applied', (WidgetTester tester) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -145,8 +140,7 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-          find.byType(TextFormField).at(0), 'Original Task Name');
+      await tester.enterText(find.byType(TextFormField).at(0), 'Original Task Name');
 
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
@@ -163,8 +157,7 @@ void main() {
       expect(find.text('Edit Task'), findsOneWidget);
 
       // Update the task name
-      await tester.enterText(
-          find.byType(TextFormField).at(0), 'Updated Task Name');
+      await tester.enterText(find.byType(TextFormField).at(0), 'Updated Task Name');
 
       // Save the changes
       await tester.tap(find.text('Save'));

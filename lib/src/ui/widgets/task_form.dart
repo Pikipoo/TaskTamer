@@ -7,10 +7,7 @@ import 'package:task_tamer/src/models/task.dart';
 class TaskForm extends StatefulWidget {
   final Task? task;
 
-  const TaskForm({
-    super.key,
-    this.task,
-  });
+  const TaskForm({super.key, this.task});
 
   @override
   State<TaskForm> createState() => _TaskFormState();
@@ -73,10 +70,7 @@ class _TaskFormState extends State<TaskForm> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a title';
@@ -232,10 +226,7 @@ class _TaskFormState extends State<TaskForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _saveTask,
@@ -302,10 +293,7 @@ class _TaskFormState extends State<TaskForm> {
 
   Future<void> _selectDueTime(BuildContext context) async {
     final initialTime = _dueTime ?? TimeOfDay.now();
-    final pickedTime = await showTimePicker(
-      context: context,
-      initialTime: initialTime,
-    );
+    final pickedTime = await showTimePicker(context: context, initialTime: initialTime);
 
     if (pickedTime != null && pickedTime != _dueTime) {
       setState(() {
@@ -325,10 +313,7 @@ class _TaskFormState extends State<TaskForm> {
 
     if (pickedDate != null) {
       final initialTime = TimeOfDay.now();
-      final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: initialTime,
-      );
+      final pickedTime = await showTimePicker(context: context, initialTime: initialTime);
 
       if (pickedTime != null) {
         setState(() {
@@ -350,55 +335,43 @@ class _TaskFormState extends State<TaskForm> {
       final DateTime? combinedDueDateTime = _dueDate == null
           ? null
           : _dueTime == null
-              ? _dueDate
-              : DateTime(
-                  _dueDate!.year,
-                  _dueDate!.month,
-                  _dueDate!.day,
-                  _dueTime!.hour,
-                  _dueTime!.minute,
-                );
+          ? _dueDate
+          : DateTime(
+              _dueDate!.year,
+              _dueDate!.month,
+              _dueDate!.day,
+              _dueTime!.hour,
+              _dueTime!.minute,
+            );
 
       if (widget.task == null) {
         // Create new task
         context.read<TaskBloc>().add(
-              AddTask(
-                title: _titleController.text,
-                description: _descriptionController.text.isEmpty
-                    ? null
-                    : _descriptionController.text,
-                dueDate: combinedDueDateTime,
-                repeatFrequency: _repeatFrequency == RepeatFrequency.none
-                    ? null
-                    : _repeatFrequency,
-                repeatValue:
-                    _repeatFrequency == RepeatFrequency.none ? null : _repeatValue,
-                timesPerDay: _timesPerDay == 1 ? null : _timesPerDay,
-                notificationTimes:
-                    _notificationTimes.isEmpty ? null : _notificationTimes,
-              ),
-            );
+          AddTask(
+            title: _titleController.text,
+            description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+            dueDate: combinedDueDateTime,
+            repeatFrequency: _repeatFrequency == RepeatFrequency.none ? null : _repeatFrequency,
+            repeatValue: _repeatFrequency == RepeatFrequency.none ? null : _repeatValue,
+            timesPerDay: _timesPerDay == 1 ? null : _timesPerDay,
+            notificationTimes: _notificationTimes.isEmpty ? null : _notificationTimes,
+          ),
+        );
       } else {
         // Update existing task
         context.read<TaskBloc>().add(
-              UpdateTask(
-                widget.task!.copyWith(
-                  title: _titleController.text,
-                  description: _descriptionController.text.isEmpty
-                      ? null
-                      : _descriptionController.text,
-                  dueDate: combinedDueDateTime,
-                  repeatFrequency: _repeatFrequency == RepeatFrequency.none
-                      ? null
-                      : _repeatFrequency,
-                  repeatValue:
-                      _repeatFrequency == RepeatFrequency.none ? null : _repeatValue,
-                  timesPerDay: _timesPerDay == 1 ? null : _timesPerDay,
-                  notificationTimes:
-                      _notificationTimes.isEmpty ? null : _notificationTimes,
-                ),
-              ),
-            );
+          UpdateTask(
+            widget.task!.copyWith(
+              title: _titleController.text,
+              description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+              dueDate: combinedDueDateTime,
+              repeatFrequency: _repeatFrequency == RepeatFrequency.none ? null : _repeatFrequency,
+              repeatValue: _repeatFrequency == RepeatFrequency.none ? null : _repeatValue,
+              timesPerDay: _timesPerDay == 1 ? null : _timesPerDay,
+              notificationTimes: _notificationTimes.isEmpty ? null : _notificationTimes,
+            ),
+          ),
+        );
       }
 
       Navigator.pop(context);

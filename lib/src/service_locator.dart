@@ -29,17 +29,19 @@ Future<void> setupServiceLocator() async {
   serviceLocator.registerSingleton<CreatureRepository>(creatureRepository);
 
   // Register BLoCs
-  serviceLocator.registerFactory<TaskBloc>(() => TaskBloc(
-        taskRepository: serviceLocator<TaskRepository>(),
-        userRepository: serviceLocator<UserRepository>(),
-        notificationService: serviceLocator<NotificationService>(),
-      ));
+  serviceLocator.registerFactory<TaskBloc>(
+    () => TaskBloc(
+      taskRepository: serviceLocator<TaskRepository>(),
+      userRepository: serviceLocator<UserRepository>(),
+      notificationService: serviceLocator<NotificationService>(),
+    ),
+  );
 
-  serviceLocator.registerFactory<UserBloc>(() => UserBloc(
-        userRepository: serviceLocator<UserRepository>(),
-      ));
+  serviceLocator.registerFactory<UserBloc>(
+    () => UserBloc(userRepository: serviceLocator<UserRepository>()),
+  );
 
-  serviceLocator.registerFactory<CreatureBloc>(() => CreatureBloc(
-        creatureRepository: serviceLocator<CreatureRepository>(),
-      ));
+  serviceLocator.registerFactory<CreatureBloc>(
+    () => CreatureBloc(creatureRepository: serviceLocator<CreatureRepository>()),
+  );
 }

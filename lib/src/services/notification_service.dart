@@ -1,7 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:task_tamer/src/models/task.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -18,8 +18,7 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
+    final DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
@@ -34,15 +33,6 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
     );
-  }
-
-  Future<void> _onDidReceiveLocalNotification(
-    int id,
-    String? title,
-    String? body,
-    String? payload,
-  ) async {
-    // Handle iOS notification when app is in foreground
   }
 
   void _onDidReceiveNotificationResponse(NotificationResponse response) {
@@ -95,7 +85,8 @@ class NotificationService {
     final idStr = baseId.toString().substring(0, 9);
     final baseNotificationId = int.parse(idStr);
 
-    for (int i = 0; i < 10; i++) { // Assuming max 10 notifications per task
+    for (int i = 0; i < 10; i++) {
+      // Assuming max 10 notifications per task
       await _notificationsPlugin.cancel(baseNotificationId + i);
     }
   }
@@ -113,8 +104,7 @@ class NotificationService {
 
   Future<bool> requestPermissions() async {
     final permissionStatus = await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
 
     return permissionStatus ?? false;

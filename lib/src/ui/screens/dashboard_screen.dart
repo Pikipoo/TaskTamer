@@ -60,10 +60,7 @@ class DashboardScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            userProfile.name,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
+                          Text(userProfile.name, style: Theme.of(context).textTheme.titleLarge),
                           Text(
                             'Level ${userProfile.level}',
                             style: Theme.of(context).textTheme.titleMedium,
@@ -73,10 +70,7 @@ class DashboardScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ExperienceBar(
-                    currentXP: userProfile.experiencePoints % 100,
-                    maxXP: 100,
-                  ),
+                  ExperienceBar(currentXP: userProfile.experiencePoints % 100, maxXP: 100),
                   const SizedBox(height: 8),
                   Text(
                     '${userProfile.experiencePoints} XP total',
@@ -91,9 +85,7 @@ class DashboardScreen extends StatelessWidget {
         return const Card(
           child: Padding(
             padding: EdgeInsets.all(16.0),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: Center(child: CircularProgressIndicator()),
           ),
         );
       },
@@ -114,10 +106,7 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Task Summary',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  Text('Task Summary', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -134,12 +123,7 @@ class DashboardScreen extends StatelessWidget {
                         'Pending',
                         pendingTasks.toString(),
                       ),
-                      _buildStatItem(
-                        context,
-                        Icons.assignment,
-                        'Total',
-                        tasks.length.toString(),
-                      ),
+                      _buildStatItem(context, Icons.assignment, 'Total', tasks.length.toString()),
                     ],
                   ),
                 ],
@@ -151,9 +135,7 @@ class DashboardScreen extends StatelessWidget {
         return const Card(
           child: Padding(
             padding: EdgeInsets.all(16.0),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: Center(child: CircularProgressIndicator()),
           ),
         );
       },
@@ -176,20 +158,12 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Creatures',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  Text('Creatures', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatItem(
-                        context,
-                        Icons.pets,
-                        'Unlocked',
-                        unlockedCreatures.toString(),
-                      ),
+                      _buildStatItem(context, Icons.pets, 'Unlocked', unlockedCreatures.toString()),
                       _buildStatItem(
                         context,
                         Icons.lock,
@@ -213,33 +187,20 @@ class DashboardScreen extends StatelessWidget {
         return const Card(
           child: Padding(
             padding: EdgeInsets.all(16.0),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: Center(child: CircularProgressIndicator()),
           ),
         );
       },
     );
   }
 
-  Widget _buildStatItem(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
+  Widget _buildStatItem(BuildContext context, IconData icon, String label, String value) {
     return Column(
       children: [
         Icon(icon, size: 32),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodyMedium),
+        Text(value, style: Theme.of(context).textTheme.titleLarge),
       ],
     );
   }

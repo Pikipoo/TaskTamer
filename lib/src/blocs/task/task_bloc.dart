@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/blocs/task/task_state.dart';
-import 'package:task_tamer/src/models/task.dart';
 import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
@@ -15,10 +14,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     required TaskRepository taskRepository,
     required UserRepository userRepository,
     required NotificationService notificationService,
-  })  : _taskRepository = taskRepository,
-        _userRepository = userRepository,
-        _notificationService = notificationService,
-        super(const TaskInitial()) {
+  }) : _taskRepository = taskRepository,
+       _userRepository = userRepository,
+       _notificationService = notificationService,
+       super(const TaskInitial()) {
     on<LoadTasks>(_onLoadTasks);
     on<AddTask>(_onAddTask);
     on<UpdateTask>(_onUpdateTask);
@@ -28,10 +27,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<CheckTasksForReset>(_onCheckTasksForReset);
   }
 
-  Future<void> _onLoadTasks(
-    LoadTasks event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onLoadTasks(LoadTasks event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
       final tasks = await _taskRepository.getAllTasks();
@@ -41,10 +37,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _onAddTask(
-    AddTask event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onAddTask(AddTask event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
       final task = await _taskRepository.createTask(
@@ -69,10 +62,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _onUpdateTask(
-    UpdateTask event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
       final task = await _taskRepository.updateTask(event.task);
@@ -87,10 +77,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _onDeleteTask(
-    DeleteTask event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onDeleteTask(DeleteTask event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
       // Cancel notifications before deleting
@@ -104,10 +91,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _onCompleteTask(
-    CompleteTask event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onCompleteTask(CompleteTask event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
       final task = await _taskRepository.completeTask(event.taskId);
@@ -125,10 +109,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _onResetTaskCompletion(
-    ResetTaskCompletion event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onResetTaskCompletion(ResetTaskCompletion event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
       final task = await _taskRepository.getTaskById(event.taskId);
@@ -144,10 +125,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _onCheckTasksForReset(
-    CheckTasksForReset event,
-    Emitter<TaskState> emit,
-  ) async {
+  Future<void> _onCheckTasksForReset(CheckTasksForReset event, Emitter<TaskState> emit) async {
     try {
       await _taskRepository.resetCompletedTasksIfNeeded();
 

@@ -15,9 +15,7 @@ class TasksScreen extends StatelessWidget {
       builder: (context, state) {
         if (state is TasksLoaded) {
           if (state.tasks.isEmpty) {
-            return const Center(
-              child: Text('No tasks yet. Add one by tapping the + button.'),
-            );
+            return const Center(child: Text('No tasks yet. Add one by tapping the + button.'));
           }
 
           final completedTasks = state.tasks.where((task) => task.isCompleted).toList();
@@ -28,17 +26,12 @@ class TasksScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Pending Tasks',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Pending Tasks', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 if (pendingTasks.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Center(
-                      child: Text('No pending tasks. Great job!'),
-                    ),
+                    child: Center(child: Text('No pending tasks. Great job!')),
                   )
                 else
                   ListView.builder(
@@ -54,17 +47,12 @@ class TasksScreen extends StatelessWidget {
                     },
                   ),
                 const SizedBox(height: 24),
-                Text(
-                  'Completed Tasks',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Completed Tasks', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 if (completedTasks.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Center(
-                      child: Text('No completed tasks yet.'),
-                    ),
+                    child: Center(child: Text('No completed tasks yet.')),
                   )
                 else
                   ListView.builder(
@@ -84,9 +72,7 @@ class TasksScreen extends StatelessWidget {
           );
         }
 
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -106,10 +92,7 @@ class TasksScreen extends StatelessWidget {
         title: const Text('Delete Task'),
         content: Text('Are you sure you want to delete "${task.title}"?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);

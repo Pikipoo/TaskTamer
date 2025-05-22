@@ -21,8 +21,11 @@ import 'package:task_tamer/src/services/notification_service.dart';
 
 // Mock classes
 class MockTaskRepository extends Mock implements TaskRepository {}
+
 class MockUserRepository extends Mock implements UserRepository {}
+
 class MockCreatureRepository extends Mock implements CreatureRepository {}
+
 class MockNotificationService extends Mock implements NotificationService {}
 
 void main() {
@@ -64,19 +67,19 @@ void main() {
     getIt.registerSingleton<CreatureRepository>(creatureRepository);
 
     // Register blocs
-    getIt.registerFactory<TaskBloc>(() => TaskBloc(
-      taskRepository: getIt<TaskRepository>(),
-      userRepository: getIt<UserRepository>(),
-      notificationService: getIt<NotificationService>(),
-    ));
+    getIt.registerFactory<TaskBloc>(
+      () => TaskBloc(
+        taskRepository: getIt<TaskRepository>(),
+        userRepository: getIt<UserRepository>(),
+        notificationService: getIt<NotificationService>(),
+      ),
+    );
 
-    getIt.registerFactory<UserBloc>(() => UserBloc(
-      userRepository: getIt<UserRepository>(),
-    ));
+    getIt.registerFactory<UserBloc>(() => UserBloc(userRepository: getIt<UserRepository>()));
 
-    getIt.registerFactory<CreatureBloc>(() => CreatureBloc(
-      creatureRepository: getIt<CreatureRepository>(),
-    ));
+    getIt.registerFactory<CreatureBloc>(
+      () => CreatureBloc(creatureRepository: getIt<CreatureRepository>()),
+    );
   });
 
   testWidgets('App should build and render home screen', (WidgetTester tester) async {

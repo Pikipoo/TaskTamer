@@ -5,11 +5,7 @@ class CreatureCard extends StatelessWidget {
   final Creature creature;
   final bool isLocked;
 
-  const CreatureCard({
-    super.key,
-    required this.creature,
-    this.isLocked = false,
-  });
+  const CreatureCard({super.key, required this.creature, this.isLocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +36,9 @@ class CreatureCard extends StatelessWidget {
                               child: Icon(
                                 Icons.pets,
                                 size: 64,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant.withOpacity(0.5),
                               ),
                             );
                           },
@@ -56,9 +54,9 @@ class CreatureCard extends StatelessWidget {
                     children: [
                       Text(
                         isLocked ? '???' : creature.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -88,12 +86,7 @@ class CreatureCard extends StatelessWidget {
               ),
             ],
           ),
-          if (isLocked)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.3),
-              ),
-            ),
+          if (isLocked) Positioned.fill(child: Container(color: Colors.black.withOpacity(0.3))),
         ],
       ),
     );

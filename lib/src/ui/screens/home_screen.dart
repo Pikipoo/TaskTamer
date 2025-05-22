@@ -21,18 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
     const CreaturesScreen(),
   ];
 
-  final List<String> _titles = [
-    'Dashboard',
-    'Tasks',
-    'Creatures',
-  ];
+  final List<String> _titles = ['Dashboard', 'Tasks', 'Creatures'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_currentIndex]),
-      ),
+      appBar: AppBar(title: Text(_titles[_currentIndex])),
       drawer: const AppDrawer(),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -43,18 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.task_alt),
-            label: 'Tasks',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pets),
-            label: 'Creatures',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(icon: Icon(Icons.task_alt), label: 'Tasks'),
+          BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Creatures'),
         ],
       ),
       floatingActionButton: _currentIndex == 1
@@ -75,12 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SingleChildScrollView(
-            child: TaskForm(),
-          ),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SingleChildScrollView(child: TaskForm()),
         );
       },
     );

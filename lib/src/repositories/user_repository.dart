@@ -24,12 +24,7 @@ class UserRepository {
     }
 
     // Create a default profile if none exists
-    final defaultProfile = UserProfile(
-      id: userId,
-      name: 'Player',
-      experiencePoints: 0,
-      level: 1,
-    );
+    final defaultProfile = UserProfile(id: userId, name: 'Player', experiencePoints: 0, level: 1);
 
     await _box.put(userId, defaultProfile.toJson());
     return defaultProfile;

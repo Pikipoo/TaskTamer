@@ -52,6 +52,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showAddTaskDialog(BuildContext context) {
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return AlertDialog(
+    //       title: const Text('Create Task'),
+    //       content: SingleChildScrollView(child: TaskForm()),
+    //     );
+    //   },
+    //   barrierDismissible: false,
+    // );
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

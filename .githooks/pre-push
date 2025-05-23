@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "Running pre-push hooks..."
+
+# Format Dart files
+echo "Formatting Dart files..."
+dart format --line-length 100 lib test integration_test
+if [ $? -ne 0 ]; then
+  echo "Error: Dart formatting failed"
+  exit 1
+fi
+
+# Analyze Dart files
+echo "Analyzing Dart files..."
+dart analyze --fatal-warnings
+if [ $? -ne 0 ]; then
+  echo "Error: Dart analysis found issues"
+  exit 1
+fi
+
+# Run tests
+# echo "Running tests..."
+# flutter test
+# if [ $? -ne 0 ]; then
+#   echo "Error: Tests failed"
+#   exit 1
+# fi
+
+echo "Pre-push hooks completed successfully"
+exit 0

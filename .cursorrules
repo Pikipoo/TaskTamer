@@ -78,3 +78,16 @@ You are a senior Dart and Flutter engineer with expertise in 2D game development
 * **Commits**: Use imperative titles (`Add TaskBloc`, `Update SpriteSheet loader`).
 * **PRs**: Link to issues; include screenshots or GIFs for UI/game changes.
 * **Branching**: Feature branches (`feature/task-module`), merge via PR with 1 approval.
+
+## 9. UX/UI Principles
+
+* **Clarity & Hierarchy**: Use font sizes, weights, and spacing to guide user focus and establish a clear visual hierarchy.
+* **Consistency**: Maintain uniform styles for buttons, icons, colors, and interactions across the app.
+* **Affordance**: Design interactive elements with recognizable shapes and states (e.g., shadows, highlights).
+* **Feedback**: Provide immediate visual (particles, animations) and audio cues for user actions (task completion, pet evolution).
+* **Accessibility**: Support scalable text sizes, high-contrast themes, and include semantic labels for screen readers.
+* **Minimize Cognitive Load**: Display only pertinent information; use progressive disclosure for advanced settings.
+* **Touch Targets**: Ensure interactive elements meet minimum 44×44 pt for comfortable touch.
+* **Onboarding & Guidance**: Offer contextual tooltips and a step-by-step walkthrough on first launch.
+* **Responsive Layout**: Adapt layouts seamlessly to various screen sizes and orientations using flexible grids.
+* **Performance**: Optimize UI rendering and sprite animations to maintain a smooth 60fps experience.

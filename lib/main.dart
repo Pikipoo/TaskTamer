@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:task_tamer/src/app.dart';
+import 'package:task_tamer/src/service_locator.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Setup service locator
+  await setupServiceLocator();
+
+  runApp(const TaskTamerApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -105,10 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
           ],
         ),
       ),

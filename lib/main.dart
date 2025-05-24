@@ -10,7 +10,9 @@
 /// License: See LICENSE file
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:task_tamer/src/app.dart';
 import 'package:task_tamer/src/service_locator.dart';
 
@@ -21,6 +23,24 @@ import 'package:task_tamer/src/service_locator.dart';
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive and clear existing data (temporary fix for adapter issues)
+  await Hive.initFlutter();
+
+  // Clear any existing Hive boxes to avoid TypeId conflicts
+  // This is a temporary solution - in production, we would migrate data properly
+  if (!kIsWeb) {
+    try {
+      // Only delete files if not on web
+      if (await Hive.boxExists('tasks')) await Hive.deleteBoxFromDisk('tasks');
+      if (await Hive.boxExists('user_profile')) await Hive.deleteBoxFromDisk('user_profile');
+      if (await Hive.boxExists('creatures')) await Hive.deleteBoxFromDisk('creatures');
+      if (await Hive.boxExists('app_data')) await Hive.deleteBoxFromDisk('app_data');
+      print('Cleared existing Hive boxes to prevent TypeId conflicts');
+    } catch (e) {
+      print('Error clearing Hive boxes: $e');
+    }
+  }
 
   // Setup service locator for dependency injection
   await setupServiceLocator();

@@ -28,7 +28,7 @@ class TaskRepository {
   static const String _boxName = 'tasks';
 
   /// Reference to the Hive box for task storage
-  final Box<Map<dynamic, dynamic>> _box;
+  final Box<dynamic> _box;
 
   /// Private constructor requiring a Hive box
   TaskRepository(this._box);
@@ -43,7 +43,8 @@ class TaskRepository {
   /// final taskRepository = await TaskRepository.create();
   /// ```
   static Future<TaskRepository> create() async {
-    final box = await Hive.openBox<Map<dynamic, dynamic>>(_boxName);
+    final box = await Hive.openBox(_boxName);
+    print('Got object store box in database $_boxName.');
     return TaskRepository(box);
   }
 
@@ -52,7 +53,19 @@ class TaskRepository {
   /// Returns a list of all Task objects stored in the repository.
   /// If no tasks exist, returns an empty list.
   Future<List<Task>> getAllTasks() async {
-    return _box.values.map((json) => Task.fromJson(Map<String, dynamic>.from(json))).toList();
+    // For consistent mapping, we convert all stored items to Task objects
+    final tasks = <Task>[];
+
+    for (var key in _box.keys) {
+      final dynamic value = _box.get(key);
+      if (value is Map) {
+        tasks.add(Task.fromJson(Map<String, dynamic>.from(value)));
+      } else if (value is Task) {
+        tasks.add(value);
+      }
+    }
+
+    return tasks;
   }
 
   /// Retrieves a specific task by its ID
@@ -61,9 +74,16 @@ class TaskRepository {
   ///
   /// Returns the Task object if found, or null if no task exists with the given ID.
   Future<Task?> getTaskById(String id) async {
-    final json = _box.get(id);
-    if (json == null) return null;
-    return Task.fromJson(Map<String, dynamic>.from(json));
+    final value = _box.get(id);
+    if (value == null) return null;
+
+    if (value is Map) {
+      return Task.fromJson(Map<String, dynamic>.from(value));
+    } else if (value is Task) {
+      return value;
+    }
+
+    return null;
   }
 
   /// Creates a new task with the given properties
@@ -104,7 +124,7 @@ class TaskRepository {
       notificationSettings: notificationSettings,
     );
 
-    await _box.put(task.id, task.toJson());
+    await _box.put(task.id, task);
     return task;
   }
 
@@ -115,7 +135,7 @@ class TaskRepository {
   ///
   /// Returns the updated Task object.
   Future<Task> updateTask(Task task) async {
-    await _box.put(task.id, task.toJson());
+    await _box.put(task.id, task);
     return task;
   }
 
@@ -147,11 +167,11 @@ class TaskRepository {
 
     if (task.timesPerDay != null && task.timesPerDay! > 1) {
       final updatedTask = task.incrementCompletedTimes();
-      await _box.put(id, updatedTask.toJson());
+      await _box.put(id, updatedTask);
       return updatedTask;
     } else {
       final completedTask = task.copyWith(isCompleted: true);
-      await _box.put(id, completedTask.toJson());
+      await _box.put(id, completedTask);
       return completedTask;
     }
   }
@@ -178,7 +198,7 @@ class TaskRepository {
         final shouldReset = _shouldResetTask(task, now);
         if (shouldReset) {
           final resetTask = task.resetCompletedTimes();
-          await _box.put(task.id, resetTask.toJson());
+          await _box.put(task.id, resetTask);
         }
       }
     }

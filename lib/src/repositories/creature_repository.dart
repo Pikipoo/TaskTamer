@@ -6,17 +6,29 @@ import 'package:uuid/uuid.dart';
 
 class CreatureRepository {
   static const String _boxName = 'creatures';
-  final Box<Map<dynamic, dynamic>> _box;
+  final Box<dynamic> _box;
 
   CreatureRepository(this._box);
 
   static Future<CreatureRepository> create() async {
-    final box = await Hive.openBox<Map<dynamic, dynamic>>(_boxName);
+    final box = await Hive.openBox(_boxName);
+    print('Got object store box in database $_boxName.');
     return CreatureRepository(box);
   }
 
   Future<List<Creature>> getAllCreatures() async {
-    return _box.values.map((json) => Creature.fromJson(Map<String, dynamic>.from(json))).toList();
+    final creatures = <Creature>[];
+
+    for (var key in _box.keys) {
+      final dynamic value = _box.get(key);
+      if (value is Map) {
+        creatures.add(Creature.fromJson(Map<String, dynamic>.from(value)));
+      } else if (value is Creature) {
+        creatures.add(value);
+      }
+    }
+
+    return creatures;
   }
 
   Future<List<Creature>> getUnlockedCreatures() async {
@@ -25,9 +37,16 @@ class CreatureRepository {
   }
 
   Future<Creature?> getCreatureById(String id) async {
-    final json = _box.get(id);
-    if (json == null) return null;
-    return Creature.fromJson(Map<String, dynamic>.from(json));
+    final value = _box.get(id);
+    if (value == null) return null;
+
+    if (value is Map) {
+      return Creature.fromJson(Map<String, dynamic>.from(value));
+    } else if (value is Creature) {
+      return value;
+    }
+
+    return null;
   }
 
   Future<Creature> addCreature({
@@ -44,12 +63,12 @@ class CreatureRepository {
       isUnlocked: isUnlocked,
     );
 
-    await _box.put(creature.id, creature.toJson());
+    await _box.put(creature.id, creature);
     return creature;
   }
 
   Future<Creature> updateCreature(Creature creature) async {
-    await _box.put(creature.id, creature.toJson());
+    await _box.put(creature.id, creature);
     return creature;
   }
 
@@ -64,7 +83,7 @@ class CreatureRepository {
     }
 
     final unlockedCreature = creature.unlock();
-    await _box.put(id, unlockedCreature.toJson());
+    await _box.put(id, unlockedCreature);
     return unlockedCreature;
   }
 
@@ -75,7 +94,7 @@ class CreatureRepository {
     }
 
     final updatedCreature = creature.addExperiencePoints(points);
-    await _box.put(id, updatedCreature.toJson());
+    await _box.put(id, updatedCreature);
     return updatedCreature;
   }
 
@@ -87,7 +106,7 @@ class CreatureRepository {
     }
 
     final updatedCreature = creature.copyWith(name: newName);
-    await _box.put(id, updatedCreature.toJson());
+    await _box.put(id, updatedCreature);
     return updatedCreature;
   }
 

@@ -1,0 +1,51 @@
+FROM ghcr.io/cirruslabs/flutter:stable as builder
+
+# Set shell to use pipefail option
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Install Chrome for Flutter web builds
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    gnupg \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set CHROME_EXECUTABLE environment variable
+ENV CHROME_EXECUTABLE=/usr/bin/google-chrome
+
+# Set up app directory
+WORKDIR /app
+
+# Copy project files
+COPY . .
+
+# Get dependencies and build web application
+RUN flutter pub get && \
+    flutter build web --release
+
+# Use a lightweight web server to serve the built application
+FROM nginx:alpine
+
+# Copy the build output to the nginx html directory
+COPY --from=builder /app/build/web /usr/share/nginx/html
+
+# Copy a custom nginx configuration
+RUN printf "server {\n\
+    listen 80;\n\
+    location / {\n\
+    root   /usr/share/nginx/html;\n\
+    index  index.html index.htm;\n\
+    try_files \$uri \$uri/ /index.html;\n\
+    }\n\
+    error_page   500 502 503 504  /50x.html;\n\
+    location = /50x.html {\n\
+    root   /usr/share/nginx/html;\n\
+    }\n\
+    }" > /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

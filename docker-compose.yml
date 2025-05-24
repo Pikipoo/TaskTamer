@@ -1,0 +1,22 @@
+services:
+  tasktamer-linux:
+    build:
+      context: .
+      dockerfile: Dockerfile.linux
+    container_name: tasktamer-linux
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/root/.Xauthority
+    network_mode: "host"
+    restart: unless-stopped
+
+  tasktamer-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: tasktamer-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped

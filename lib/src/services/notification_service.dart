@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:task_tamer/src/models/task.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -14,6 +16,12 @@ class NotificationService {
 
   Future<void> initialize() async {
     tz_data.initializeTimeZones();
+
+    // Skip notification setup on Linux for now
+    if (Platform.isLinux) {
+      print('Skipping notification initialization on Linux platform');
+      return;
+    }
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -43,6 +51,11 @@ class NotificationService {
   }
 
   Future<void> scheduleTaskNotification(Task task) async {
+    // Skip notification on Linux for now
+    if (Platform.isLinux) {
+      return;
+    }
+
     // First check if there's a due date
     if (task.dueDate == null) {
       return;
@@ -78,21 +91,23 @@ class NotificationService {
 
       final notificationId = int.parse('${task.id.hashCode}$i'.substring(0, 9));
 
+      final notificationDetails = NotificationDetails(
+        android: const AndroidNotificationDetails(
+          'task_reminders',
+          'Task Reminders',
+          channelDescription: 'Notifications for task reminders',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: const DarwinNotificationDetails(),
+      );
+
       await _notificationsPlugin.zonedSchedule(
         notificationId,
         'Task Reminder: ${task.title}',
         task.description ?? 'It\'s time to complete your task!',
         tz.TZDateTime.from(scheduledTime, tz.local),
-        NotificationDetails(
-          android: const AndroidNotificationDetails(
-            'task_reminders',
-            'Task Reminders',
-            channelDescription: 'Notifications for task reminders',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
+        notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: task.id,
@@ -101,6 +116,11 @@ class NotificationService {
   }
 
   Future<void> cancelTaskNotifications(String taskId) async {
+    // Skip on Linux platform
+    if (Platform.isLinux) {
+      return;
+    }
+
     // A simple approach is to cancel a range of notification IDs
     // that could be associated with this task
     final baseId = taskId.hashCode;
@@ -114,6 +134,11 @@ class NotificationService {
   }
 
   Future<void> updateTaskNotifications(Task task) async {
+    // Skip on Linux platform
+    if (Platform.isLinux) {
+      return;
+    }
+
     // First cancel existing notifications
     await cancelTaskNotifications(task.id);
     // Then schedule new ones
@@ -121,14 +146,27 @@ class NotificationService {
   }
 
   Future<void> cancelAllNotifications() async {
+    // Skip on Linux platform
+    if (Platform.isLinux) {
+      return;
+    }
+
     await _notificationsPlugin.cancelAll();
   }
 
   Future<bool> requestPermissions() async {
-    final permissionStatus = await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    if (Platform.isLinux) {
+      return true; // No permissions needed on Linux
+    }
 
-    return permissionStatus ?? false;
+    if (Platform.isAndroid) {
+      final permissionStatus = await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+
+      return permissionStatus ?? false;
+    }
+
+    return true;
   }
 }

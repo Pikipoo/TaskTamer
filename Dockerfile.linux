@@ -1,6 +1,6 @@
 FROM ghcr.io/cirruslabs/flutter:stable
 
-# Install Linux dependencies needed for Flutter desktop
+# Install Linux dependencies needed for Flutter desktop and diagnostic tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     clang \
     cmake \
@@ -8,19 +8,49 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     libgtk-3-dev \
     liblzma-dev \
+    x11-utils \
+    libxkbcommon-x11-0 \
+    libwayland-client0 \
+    libwayland-cursor0 \
+    libwayland-egl1 \
+    libwayland-dev \
+    wayland-protocols \
+    libxkbcommon-dev \
+    mesa-utils \
+    libgl1-mesa-dri \
+    libgles2 \
+    xterm \
+    x11-apps \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up app directory
+# Set environment variables for Flutter and graphics
+ENV GDK_BACKEND=wayland,x11
+ENV LIBGL_ALWAYS_SOFTWARE=1
+ENV FLUTTER_TEST_DEVICE_ENABLE_VULKAN=1
+ENV FLUTTER_ENABLE_SOFTWARE_RENDERING=true
+ENV GTK_IM_MODULE=ibus
+ENV QT_IM_MODULE=ibus
+ENV XMODIFIERS=@im=ibus
+ENV DISPLAY=:0
+
+# Create a test Flutter app
+WORKDIR /test_app
+RUN flutter create . && \
+    flutter config --enable-linux-desktop && \
+    flutter build linux --verbose
+
+# Set up app directory for the actual application
 WORKDIR /app
 
 # Copy project files
 COPY . .
 
-# Get dependencies and build Linux application
-RUN flutter config --enable-linux-desktop && \
-    flutter pub get && \
-    flutter build linux --release && \
-    printf '#!/bin/bash\ncd /app/build/linux/x64/release/bundle\n./task_tamer "$@"' > /app/run.sh && \
+# Create a test script to verify display server connection
+RUN printf '#!/bin/bash\necho "Testing display connection..."\nxeyes &\nsleep 5\nkillall xeyes\n' > /app/test-display.sh && \
+    chmod +x /app/test-display.sh
+
+# Create a script that will run either the test app or the real app
+RUN printf '#!/bin/bash\necho "Starting container..."\necho "DISPLAY=$DISPLAY"\necho "XDG_SESSION_TYPE=$XDG_SESSION_TYPE"\necho "WAYLAND_DISPLAY=$WAYLAND_DISPLAY"\necho "GDK_BACKEND=$GDK_BACKEND"\necho "Testing graphics:"\nglxinfo | grep -i "direct rendering" || echo "No direct rendering"\necho ""\necho "Choose what to run:"\necho "1) Run test Flutter app"\necho "2) Run TaskTamer app"\necho "3) Run xeyes (X11 test)"\necho "4) Run xterm"\nread -p "Enter your choice (1-4): " choice\n\ncase $choice in\n  1)\n    echo "Running test Flutter app..."\n    cd /test_app/build/linux/x64/release\n    ./test_app\n    ;;\n  2)\n    echo "Running TaskTamer app..."\n    cd /app\n    flutter config --enable-linux-desktop\n    flutter build linux --verbose --release\n    cd /app/build/linux/x64/release/bundle\n    ./task_tamer\n    ;;\n  3)\n    echo "Running xeyes..."\n    xeyes\n    ;;\n  4)\n    echo "Running xterm..."\n    xterm\n    ;;\n  *)\n    echo "Invalid choice"\n    exit 1\n    ;;\nesac\n' > /app/run.sh && \
     chmod +x /app/run.sh
 
 ENTRYPOINT ["/app/run.sh"]

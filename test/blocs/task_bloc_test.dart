@@ -11,6 +11,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/blocs/task/task_state.dart';
+import 'package:task_tamer/src/blocs/user/user_bloc.dart';
+import 'package:task_tamer/src/blocs/user/user_event.dart';
 import 'package:task_tamer/src/models/task.dart';
 import 'package:task_tamer/src/models/user_profile.dart';
 import 'package:task_tamer/src/repositories/task_repository.dart';
@@ -26,6 +28,9 @@ class MockUserRepository extends Mock implements UserRepository {}
 /// Mock implementation of NotificationService for testing
 class MockNotificationService extends Mock implements NotificationService {}
 
+/// Mock implementation of UserBloc for testing
+class MockUserBloc extends Mock implements UserBloc {}
+
 // Define fake classes for Mocktail fallback values
 /// Fake Task class for Mocktail's registerFallbackValue
 class FakeTask extends Fake implements Task {}
@@ -35,6 +40,7 @@ void main() {
   late MockUserRepository userRepository;
   late MockNotificationService notificationService;
   late TaskBloc taskBloc;
+  late MockUserBloc mockUserBloc;
 
   // Register fallback values for Mocktail
   setUpAll(() {
@@ -60,10 +66,12 @@ void main() {
     taskRepository = MockTaskRepository();
     userRepository = MockUserRepository();
     notificationService = MockNotificationService();
+    mockUserBloc = MockUserBloc();
     taskBloc = TaskBloc(
       taskRepository: taskRepository,
       userRepository: userRepository,
       notificationService: notificationService,
+      userBloc: mockUserBloc,
     );
   });
 
@@ -282,8 +290,37 @@ void main() {
   });
 
   group('CompleteTask', () {
+    final mockUserBloc = MockUserBloc();
+
     blocTest<TaskBloc, TaskState>(
-      'emits [TaskLoading, TasksLoaded] when CompleteTask is successful',
+      'emits [TaskLoading, TasksLoaded] and dispatches AddExperiencePoints when CompleteTask is successful',
+      build: () {
+        when(() => taskRepository.completeTask('1')).thenAnswer((_) async => completedTask);
+        when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [completedTask]);
+
+        return TaskBloc(
+          taskRepository: taskRepository,
+          userRepository: userRepository,
+          notificationService: notificationService,
+          userBloc: mockUserBloc,
+        );
+      },
+      act: (bloc) => bloc.add(const CompleteTask('1')),
+      expect: () => [
+        const TaskLoading(),
+        TasksLoaded([completedTask]),
+      ],
+      verify: (_) {
+        verify(() => taskRepository.completeTask('1')).called(1);
+        // Verify we dispatched to UserBloc instead of direct repository call
+        verify(() => mockUserBloc.add(const AddExperiencePoints(10))).called(1);
+        verifyNever(() => userRepository.addExperiencePoints(any()));
+        verify(() => taskRepository.getAllTasks()).called(1);
+      },
+    );
+
+    blocTest<TaskBloc, TaskState>(
+      'uses userRepository directly when userBloc is not available',
       build: () {
         when(() => taskRepository.completeTask('1')).thenAnswer((_) async => completedTask);
         when(() => userRepository.addExperiencePoints(10)).thenAnswer(
@@ -312,12 +349,19 @@ void main() {
 
         when(() => taskRepository.completeTask('1')).thenAnswer((_) async => partialCompletedTask);
         when(() => taskRepository.getAllTasks()).thenAnswer((_) async => [partialCompletedTask]);
-        return taskBloc;
+
+        return TaskBloc(
+          taskRepository: taskRepository,
+          userRepository: userRepository,
+          notificationService: notificationService,
+          userBloc: mockUserBloc,
+        );
       },
       act: (bloc) => bloc.add(const CompleteTask('1')),
       expect: () => [const TaskLoading(), isA<TasksLoaded>()],
       verify: (_) {
         verify(() => taskRepository.completeTask('1')).called(1);
+        verifyNever(() => mockUserBloc.add(any()));
         verifyNever(() => userRepository.addExperiencePoints(any()));
         verify(() => taskRepository.getAllTasks()).called(1);
       },

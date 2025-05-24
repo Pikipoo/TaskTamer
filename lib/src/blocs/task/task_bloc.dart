@@ -8,6 +8,8 @@ library;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/blocs/task/task_state.dart';
+import 'package:task_tamer/src/blocs/user/user_bloc.dart';
+import 'package:task_tamer/src/blocs/user/user_event.dart';
 import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
@@ -30,19 +32,25 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   /// Service for scheduling and managing task notifications
   final NotificationService _notificationService;
 
+  /// UserBloc reference for dispatching XP-related events
+  final UserBloc? _userBloc;
+
   /// Creates a new TaskBloc with required dependencies
   ///
   /// Requires:
   /// - [taskRepository] for task data operations
   /// - [userRepository] for user data operations (XP awards)
   /// - [notificationService] for task notifications
+  /// - [userBloc] optional, for refreshing XP display
   TaskBloc({
     required TaskRepository taskRepository,
     required UserRepository userRepository,
     required NotificationService notificationService,
+    UserBloc? userBloc,
   }) : _taskRepository = taskRepository,
        _userRepository = userRepository,
        _notificationService = notificationService,
+       _userBloc = userBloc,
        super(const TaskInitial()) {
     on<LoadTasks>(_onLoadTasks);
     on<AddTask>(_onAddTask);
@@ -136,7 +144,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   /// Handles the CompleteTask event
   ///
   /// Marks a task as completed or increments its completion count.
-  /// If the task is fully completed, awards XP to the user.
+  /// If the task is fully completed, awards XP to the user and notifies UserBloc to refresh the UI.
   Future<void> _onCompleteTask(CompleteTask event, Emitter<TaskState> emit) async {
     emit(const TaskLoading());
     try {
@@ -146,6 +154,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       if (task.isCompleted) {
         // Award XP to the user (10 XP per task)
         await _userRepository.addExperiencePoints(10);
+
+        // Also notify UserBloc to refresh the XP display
+        _userBloc?.add(const LoadUserProfile());
       }
 
       final tasks = await _taskRepository.getAllTasks();

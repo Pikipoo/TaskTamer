@@ -2,6 +2,16 @@
 
 TaskTamer is a cross-platform mobile app combining task management with collectible pixel-monsters. Completing real-world tasks feeds, trains, and evolves pixel pets, turning self-organization into a fun, rewarding game.
 
+![TaskTamer Screenshot](docs/images/screenshot.png)
+
+## Features
+
+- **Task Management**: Create, track, and complete daily tasks and recurring habits
+- **Virtual Pets**: Collect and evolve pixel creatures by completing tasks
+- **Gamification**: Earn experience points, level up, and unlock new creatures
+- **Notifications**: Get reminders for upcoming tasks
+- **Cross-Platform**: Works on Android, iOS, and desktop platforms
+
 ## Getting Started
 
 This project uses Flutter with the Flame engine for 2D game development.
@@ -12,6 +22,27 @@ This project uses Flutter with the Flame engine for 2D game development.
 - Dart SDK (3.8.0+)
 - For Linux: GTK development libraries
 - For Chrome: A recent Chrome browser
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/TaskTamer.git
+cd TaskTamer
+```
+
+2. Install dependencies:
+
+```bash
+flutter pub get
+```
+
+3. Run the app:
+
+```bash
+flutter run
+```
 
 ### Running the App
 
@@ -42,6 +73,25 @@ For Chrome:
 flutter run -d chrome --web-renderer html
 ```
 
+## Architecture
+
+TaskTamer follows a Clean Architecture approach with MVVM principles, using the BLoC pattern for state management. The application is organized into several layers:
+
+```
+lib/
+├── main.dart
+├── src/
+│   ├── app.dart
+│   ├── blocs/           # Business Logic Components
+│   ├── models/          # Data models
+│   ├── repositories/    # Data access layer
+│   ├── services/        # System services
+│   ├── ui/              # UI components
+│   └── game/            # Flame game components
+```
+
+For more detailed information, see the [Architecture Overview](docs/architecture/overview.md).
+
 ## Development
 
 The project follows MVVM/BLoC architecture with a clean folder structure. Key technologies include:
@@ -50,6 +100,7 @@ The project follows MVVM/BLoC architecture with a clean folder structure. Key te
 - **Dependency Injection:** `get_it`
 - **Local Storage:** Hive
 - **Notifications:** `flutter_local_notifications`
+- **Game Engine:** Flame
 
 ### Setting Up Development Environment
 
@@ -65,6 +116,8 @@ This will install pre-commit hooks that:
 - Run the analyzer to check for issues
 - Run tests to ensure nothing breaks
 
+For more information, see the [Development Workflow Guide](docs/guides/development_workflow.md).
+
 ### Code Quality and Standards
 
 The project uses:
@@ -77,6 +130,22 @@ Git hooks ensure these checks run before commits and pushes:
 
 - **pre-commit**: Formats code, runs analysis and tests but allows commits even if analysis or tests fail
 - **pre-push**: Enforces that all formatting, analysis, and tests pass before pushing
+
+## Testing
+
+TaskTamer has a comprehensive test suite:
+
+- **Unit Tests**: For models, BLoCs, repositories, and services
+- **Widget Tests**: For UI components
+- **Integration Tests**: For end-to-end functionality
+
+To run tests:
+
+```bash
+flutter test
+```
+
+For more information, see the [Testing Guide](docs/guides/testing.md).
 
 ## CI/CD Pipeline
 
@@ -104,3 +173,31 @@ Alternatively, use the VS Code tasks:
 - `Flutter: Build Linux`
 - `Flutter: Build Web`
 - `Flutter: Build All`
+
+## Documentation
+
+Comprehensive documentation is available in the `docs` directory:
+
+- [Architecture Overview](docs/architecture/overview.md)
+- [Models Documentation](docs/models/overview.md)
+- [Repositories Documentation](docs/repositories/overview.md)
+- [BLoC Documentation](docs/blocs/overview.md)
+- [UI Documentation](docs/ui/overview.md)
+- [Game Engine Documentation](docs/game/overview.md)
+- [Testing Guide](docs/guides/testing.md)
+- [Development Workflow](docs/guides/development_workflow.md)
+
+## Contributing
+
+Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Flutter](https://flutter.dev/)
+- [Flame Engine](https://flame-engine.org/)
+- [Hive](https://docs.hivedb.dev/)
+- [flutter_bloc](https://bloclibrary.dev/)

@@ -91,3 +91,24 @@ You are a senior Dart and Flutter engineer with expertise in 2D game development
 * **Onboarding & Guidance**: Offer contextual tooltips and a step-by-step walkthrough on first launch.
 * **Responsive Layout**: Adapt layouts seamlessly to various screen sizes and orientations using flexible grids.
 * **Performance**: Optimize UI rendering and sprite animations to maintain a smooth 60fps experience.
+
+## 10. Code Documentation Principles
+
+* **Doc Comments**: Use Dart’s `///` triple-slash comments for public classes, methods, and properties.
+* **Consistency**: Maintain a consistent comment style and format across the codebase.
+* **Clarity**: Explain the "why" and "what" of complex logic, not just "how".
+* **Examples**: Include usage examples in doc comments for public APIs.
+* **Annotations**: Document parameters and return values using `@param` and `@returns` tags.
+* **Keep Up-to-Date**: Update comments whenever code behavior changes.
+* **Lint Enforcement**: Enable `dartdoc` analysis in CI to catch missing documentation.
+
+## 11. Project Documentation Principles
+
+* **README**: Provide an overview, setup instructions, and development workflow.
+* **CHANGELOG**: Maintain a `CHANGELOG.md` following Keep a Changelog conventions.
+* **Contributing Guide**: Include `CONTRIBUTING.md` with contribution steps, code style, and PR process.
+* **Architecture Diagrams**: Visualize high-level module interactions and data flow.
+* **API References**: Generate and publish API docs via `dartdoc` for internal/external reference.
+* **Roadmap**: Maintain a `ROADMAP.md` outlining short-term and long-term goals.
+* **Templates**: Provide issue and PR templates in `.github/` for consistency.
+* **Documentation Site**: Consider a docs site (e.g., GitBook or MkDocs) for tutorials and deep dives.

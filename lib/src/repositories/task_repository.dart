@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:hive/hive.dart';
+import 'package:task_tamer/src/models/notification_setting.dart';
 import 'package:task_tamer/src/models/task.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,6 +34,7 @@ class TaskRepository {
     int? repeatValue,
     int? timesPerDay,
     List<DateTime>? notificationTimes,
+    List<NotificationSetting>? notificationSettings,
   }) async {
     final task = Task(
       id: const Uuid().v4(),
@@ -44,6 +46,7 @@ class TaskRepository {
       repeatValue: repeatValue,
       timesPerDay: timesPerDay,
       notificationTimes: notificationTimes,
+      notificationSettings: notificationSettings,
     );
 
     await _box.put(task.id, task.toJson());

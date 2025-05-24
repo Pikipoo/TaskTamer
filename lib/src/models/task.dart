@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:task_tamer/src/models/notification_setting.dart';
 
 @immutable
 class Task extends Equatable {
@@ -14,6 +15,7 @@ class Task extends Equatable {
   final int? timesPerDay;
   final int completedTimes;
   final List<DateTime>? notificationTimes;
+  final List<NotificationSetting>? notificationSettings;
   final bool isCompleted;
 
   const Task({
@@ -27,6 +29,7 @@ class Task extends Equatable {
     this.timesPerDay,
     this.completedTimes = 0,
     this.notificationTimes,
+    this.notificationSettings,
     this.isCompleted = false,
   });
 
@@ -41,6 +44,7 @@ class Task extends Equatable {
     int? timesPerDay,
     int? completedTimes,
     List<DateTime>? notificationTimes,
+    List<NotificationSetting>? notificationSettings,
     bool? isCompleted,
   }) {
     return Task(
@@ -54,8 +58,23 @@ class Task extends Equatable {
       timesPerDay: timesPerDay ?? this.timesPerDay,
       completedTimes: completedTimes ?? this.completedTimes,
       notificationTimes: notificationTimes ?? this.notificationTimes,
+      notificationSettings: notificationSettings ?? this.notificationSettings,
       isCompleted: isCompleted ?? this.isCompleted,
     );
+  }
+
+  /// Calculates notification times based on notification settings and due date
+  List<DateTime>? calculateNotificationTimes() {
+    if (dueDate == null || notificationSettings == null || notificationSettings!.isEmpty) {
+      return notificationTimes;
+    }
+
+    final List<DateTime> calculatedTimes = [];
+    for (final setting in notificationSettings!) {
+      calculatedTimes.add(setting.calculateNotificationTime(dueDate!));
+    }
+
+    return calculatedTimes;
   }
 
   Task incrementCompletedTimes() {
@@ -81,6 +100,7 @@ class Task extends Equatable {
     timesPerDay,
     completedTimes,
     notificationTimes,
+    notificationSettings,
     isCompleted,
   ];
 
@@ -96,6 +116,7 @@ class Task extends Equatable {
       'timesPerDay': timesPerDay,
       'completedTimes': completedTimes,
       'notificationTimes': notificationTimes?.map((e) => e.toIso8601String()).toList(),
+      'notificationSettings': notificationSettings?.map((e) => e.toJson()).toList(),
       'isCompleted': isCompleted,
     };
   }
@@ -118,6 +139,12 @@ class Task extends Equatable {
       completedTimes: json['completedTimes'] ?? 0,
       notificationTimes: json['notificationTimes'] != null
           ? (json['notificationTimes'] as List).map((e) => DateTime.parse(e)).toList()
+          : null,
+      notificationSettings: json['notificationSettings'] != null
+          ? (json['notificationSettings'] as List)
+                .map((e) => NotificationSetting.fromJson(e))
+                .toList()
+                .cast<NotificationSetting>()
           : null,
       isCompleted: json['isCompleted'] ?? false,
     );

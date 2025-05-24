@@ -48,10 +48,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         repeatValue: event.repeatValue,
         timesPerDay: event.timesPerDay,
         notificationTimes: event.notificationTimes,
+        notificationSettings: event.notificationSettings,
       );
 
       // Schedule notifications if needed
-      if (task.notificationTimes != null && task.notificationTimes!.isNotEmpty) {
+      if ((task.notificationTimes != null && task.notificationTimes!.isNotEmpty) ||
+          (task.notificationSettings != null && task.notificationSettings!.isNotEmpty)) {
         await _notificationService.scheduleTaskNotification(task);
       }
 

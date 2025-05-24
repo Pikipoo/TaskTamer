@@ -1,10 +1,20 @@
+/// Unit tests for the Task model
+///
+/// This file contains comprehensive tests for the Task model,
+/// including constructor tests, method tests, serialization tests,
+/// and utility method tests to ensure the model functions correctly.
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:task_tamer/src/models/task.dart';
 
 void main() {
+  /// Group of tests for the Task model
   group('Task Model', () {
+    // Common test date for consistent testing
     final currentDate = DateTime(2023, 6, 15, 10, 0);
 
+    /// Test creating a Task with only required parameters
     test('should create Task with required parameters', () {
       final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
@@ -15,6 +25,7 @@ void main() {
       expect(task.completedTimes, 0);
     });
 
+    /// Test creating a Task with all available parameters
     test('should create Task with all parameters', () {
       final dueDate = currentDate.add(const Duration(days: 1));
       final notificationTimes = [dueDate.subtract(const Duration(hours: 1))];
@@ -46,6 +57,7 @@ void main() {
       expect(task.isCompleted, false);
     });
 
+    /// Test the copyWith method creates a new instance with updated values
     test('copyWith should create a new instance with updated values', () {
       final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
@@ -57,6 +69,7 @@ void main() {
       expect(updatedTask.creationDate, currentDate);
     });
 
+    /// Test incrementCompletedTimes for multi-time tasks
     test('incrementCompletedTimes should increment counter and update isCompleted', () {
       final task = Task(
         id: '1',
@@ -75,6 +88,7 @@ void main() {
       expect(completedTask.isCompleted, true);
     });
 
+    /// Test incrementCompletedTimes for single-time tasks
     test('incrementCompletedTimes should mark single-time task as completed', () {
       final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
@@ -83,6 +97,7 @@ void main() {
       expect(updatedTask.isCompleted, true);
     });
 
+    /// Test resetCompletedTimes resets counter and completion status
     test('resetCompletedTimes should reset counter and isCompleted', () {
       final task = Task(
         id: '1',
@@ -98,6 +113,7 @@ void main() {
       expect(resetTask.isCompleted, false);
     });
 
+    /// Test serialization to JSON
     test('toJson should return a valid map', () {
       final dueDate = currentDate.add(const Duration(days: 1));
       final notificationTimes = [dueDate.subtract(const Duration(hours: 1))];
@@ -131,6 +147,7 @@ void main() {
       expect(json['isCompleted'], false);
     });
 
+    /// Test deserialization from JSON
     test('fromJson should create a task from json', () {
       final dueDate = currentDate.add(const Duration(days: 1));
       final notificationTime = dueDate.subtract(const Duration(hours: 1));
@@ -165,6 +182,7 @@ void main() {
       expect(task.isCompleted, false);
     });
 
+    /// Test getFormattedDueDate with a valid due date
     test('getFormattedDueDate should return correct format', () {
       final dueDate = DateTime(2023, 6, 16, 10, 0);
       final task = Task(id: '1', title: 'Test Task', creationDate: currentDate, dueDate: dueDate);
@@ -172,12 +190,14 @@ void main() {
       expect(task.getFormattedDueDate(), 'Jun 16, 2023');
     });
 
+    /// Test getFormattedDueDate with null due date
     test('getFormattedDueDate should return "No due date" when null', () {
       final task = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 
       expect(task.getFormattedDueDate(), 'No due date');
     });
 
+    /// Test getFormattedDueTime with a valid due date
     test('getFormattedDueTime should return correct format', () {
       final dueDate = DateTime(2023, 6, 16, 14, 30);
       final task = Task(id: '1', title: 'Test Task', creationDate: currentDate, dueDate: dueDate);
@@ -185,6 +205,7 @@ void main() {
       expect(task.getFormattedDueTime(), '02:30 PM');
     });
 
+    /// Test isOverdue for tasks with past due dates
     test('isOverdue should return true for past due dates', () {
       final now = DateTime.now();
       final pastDueDate = now.subtract(const Duration(days: 1));
@@ -200,6 +221,7 @@ void main() {
       expect(task.isOverdue(), true);
     });
 
+    /// Test isOverdue for tasks with future due dates
     test('isOverdue should return false for future due dates', () {
       final now = DateTime.now();
       final futureDueDate = now.add(const Duration(days: 1));
@@ -215,6 +237,7 @@ void main() {
       expect(task.isOverdue(), false);
     });
 
+    /// Test isOverdue for completed tasks
     test('isOverdue should return false for completed tasks', () {
       final now = DateTime.now();
       final pastDueDate = now.subtract(const Duration(days: 1));
@@ -230,6 +253,7 @@ void main() {
       expect(task.isOverdue(), false);
     });
 
+    /// Test repeatDescription for different repeat frequencies
     test('repeatDescription should return correct string for each frequency', () {
       final baseTask = Task(id: '1', title: 'Test Task', creationDate: currentDate);
 

@@ -1,9 +1,9 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+/// Main application widget test
+///
+/// This file contains tests for the main TaskTamerApp widget.
+/// It sets up a test environment with mock dependencies and verifies
+/// that the application initializes and renders correctly.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,13 +19,16 @@ import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
 
-// Mock classes
+/// Mock implementation of TaskRepository for testing
 class MockTaskRepository extends Mock implements TaskRepository {}
 
+/// Mock implementation of UserRepository for testing
 class MockUserRepository extends Mock implements UserRepository {}
 
+/// Mock implementation of CreatureRepository for testing
 class MockCreatureRepository extends Mock implements CreatureRepository {}
 
+/// Mock implementation of NotificationService for testing
 class MockNotificationService extends Mock implements NotificationService {}
 
 void main() {
@@ -34,6 +37,12 @@ void main() {
   late MockCreatureRepository creatureRepository;
   late MockNotificationService notificationService;
 
+  /// Setup function that runs before each test
+  ///
+  /// This function:
+  /// 1. Initializes all mock dependencies
+  /// 2. Sets up default responses for mock methods
+  /// 3. Resets and configures the GetIt service locator
   setUp(() {
     // Initialize mocks
     taskRepository = MockTaskRepository();
@@ -82,6 +91,12 @@ void main() {
     );
   });
 
+  /// Test that verifies the app builds and renders correctly
+  ///
+  /// This test:
+  /// 1. Builds the TaskTamerApp widget
+  /// 2. Waits for all animations to complete
+  /// 3. Verifies that at least one Scaffold is present in the widget tree
   testWidgets('App should build and render home screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const TaskTamerApp());

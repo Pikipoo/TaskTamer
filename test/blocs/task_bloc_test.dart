@@ -1,3 +1,10 @@
+/// Unit tests for the TaskBloc
+///
+/// This file contains comprehensive tests for the TaskBloc, covering all events
+/// and their expected state transitions. Mock implementations are used for
+/// dependencies to isolate the BLoC logic from external components.
+library;
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -10,13 +17,17 @@ import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
 
+/// Mock implementation of TaskRepository for testing
 class MockTaskRepository extends Mock implements TaskRepository {}
 
+/// Mock implementation of UserRepository for testing
 class MockUserRepository extends Mock implements UserRepository {}
 
+/// Mock implementation of NotificationService for testing
 class MockNotificationService extends Mock implements NotificationService {}
 
 // Define fake classes for Mocktail fallback values
+/// Fake Task class for Mocktail's registerFallbackValue
 class FakeTask extends Fake implements Task {}
 
 void main() {
@@ -32,6 +43,7 @@ void main() {
 
   final testDate = DateTime(2023, 6, 15, 10, 0);
 
+  // Sample task for testing
   final testTask = Task(
     id: '1',
     title: 'Test Task',
@@ -43,6 +55,7 @@ void main() {
 
   final completedTask = testTask.copyWith(completedTimes: 1, isCompleted: true);
 
+  /// Setup test environment before each test
   setUp(() {
     taskRepository = MockTaskRepository();
     userRepository = MockUserRepository();
@@ -54,15 +67,19 @@ void main() {
     );
   });
 
+  /// Clean up after each test
   tearDown(() {
     taskBloc.close();
   });
 
+  /// Test initial state
   test('initial state should be TaskInitial', () {
     expect(taskBloc.state, const TaskInitial());
   });
 
+  /// Tests for LoadTasks event
   group('LoadTasks', () {
+    /// Test successful task loading
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when LoadTasks is successful',
       build: () {
@@ -79,6 +96,7 @@ void main() {
       },
     );
 
+    /// Test failed task loading
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when LoadTasks fails',
       build: () {
@@ -93,6 +111,7 @@ void main() {
     );
   });
 
+  /// Tests for AddTask event
   group('AddTask', () {
     final taskToAdd = AddTask(
       title: 'New Task',
@@ -116,6 +135,7 @@ void main() {
       notificationTimes: [testDate.add(const Duration(hours: 2))],
     );
 
+    /// Test successful task addition
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when AddTask is successful',
       build: () {
@@ -158,6 +178,7 @@ void main() {
       },
     );
 
+    /// Test failed task addition
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when AddTask fails',
       build: () {
@@ -182,7 +203,9 @@ void main() {
     );
   });
 
+  /// Tests for UpdateTask event
   group('UpdateTask', () {
+    /// Test successful task update
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when UpdateTask is successful',
       build: () {
@@ -205,6 +228,7 @@ void main() {
       },
     );
 
+    /// Test failed task update
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when UpdateTask fails',
       build: () {
@@ -221,7 +245,9 @@ void main() {
     );
   });
 
+  /// Tests for DeleteTask event
   group('DeleteTask', () {
+    /// Test successful task deletion
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TasksLoaded] when DeleteTask is successful',
       build: () {
@@ -239,6 +265,7 @@ void main() {
       },
     );
 
+    /// Test failed task deletion
     blocTest<TaskBloc, TaskState>(
       'emits [TaskLoading, TaskOperationFailure] when DeleteTask fails',
       build: () {

@@ -1,3 +1,16 @@
+/// Dependency Injection configuration for TaskTamer
+///
+/// This file sets up the service locator using the GetIt package to implement
+/// dependency injection throughout the application. It initializes and registers
+/// all services, repositories, and BLoCs needed by the app.
+///
+/// The service locator pattern allows for:
+/// - Cleaner code with reduced coupling
+/// - Easier testing by allowing mock implementations
+/// - Single source of truth for dependency instances
+/// - Simplified access to dependencies from anywhere in the app
+library;
+
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:task_tamer/src/blocs/creature/creature_bloc.dart';
@@ -8,27 +21,44 @@ import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
 
+/// Global service locator instance used throughout the app
 final GetIt serviceLocator = GetIt.instance;
 
+/// Initializes all dependencies for the TaskTamer application
+///
+/// This function performs the following steps:
+/// 1. Initializes Hive for local storage
+/// 2. Registers services (e.g., NotificationService)
+/// 3. Creates and registers repositories
+/// 4. Registers BLoCs with their dependencies
+///
+/// Should be called during app initialization in [main.dart]
+/// before running the app to ensure all dependencies are available.
 Future<void> setupServiceLocator() async {
-  // Initialize Hive
+  // Initialize Hive for local storage
   await Hive.initFlutter();
 
   // Register services
+  // NotificationService is registered as a singleton to maintain a single instance
   serviceLocator.registerSingleton<NotificationService>(NotificationService());
   await serviceLocator<NotificationService>().initialize();
 
   // Register repositories
+  // TaskRepository is created and initialized before registration
   final taskRepository = await TaskRepository.create();
   serviceLocator.registerSingleton<TaskRepository>(taskRepository);
 
+  // UserRepository for managing user data and progression
   final userRepository = await UserRepository.create();
   serviceLocator.registerSingleton<UserRepository>(userRepository);
 
+  // CreatureRepository for managing game creatures/pets
   final creatureRepository = await CreatureRepository.create();
   serviceLocator.registerSingleton<CreatureRepository>(creatureRepository);
 
   // Register BLoCs
+  // Using factory registration for BLoCs to create a new instance every time they're requested
+  // TaskBloc handles task operations and is dependent on task and user repositories
   serviceLocator.registerFactory<TaskBloc>(
     () => TaskBloc(
       taskRepository: serviceLocator<TaskRepository>(),
@@ -37,10 +67,12 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
+  // UserBloc handles user profile and progression
   serviceLocator.registerFactory<UserBloc>(
     () => UserBloc(userRepository: serviceLocator<UserRepository>()),
   );
 
+  // CreatureBloc handles pet/creature management
   serviceLocator.registerFactory<CreatureBloc>(
     () => CreatureBloc(creatureRepository: serviceLocator<CreatureRepository>()),
   );

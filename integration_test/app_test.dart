@@ -1,12 +1,29 @@
+/// Integration tests for the TaskTamer application
+///
+/// This file contains end-to-end tests that verify the app's key user flows
+/// by simulating real user interactions with the application. These tests
+/// launch the full application and test multiple components working together.
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:task_tamer/main.dart' as app;
 
 void main() {
+  // Initialize the integration test environment
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  /// Group of end-to-end tests verifying core app functionality
   group('End-to-end app tests', () {
+    /// Test the task creation flow
+    ///
+    /// This test:
+    /// 1. Launches the app
+    /// 2. Navigates to the add task screen
+    /// 3. Enters task details
+    /// 4. Saves the task
+    /// 5. Verifies the task appears in the list
     testWidgets('Add a new task and verify it appears in the task list', (
       WidgetTester tester,
     ) async {
@@ -39,6 +56,13 @@ void main() {
       expect(find.text('Description for integration test'), findsOneWidget);
     });
 
+    /// Test the task completion flow
+    ///
+    /// This test:
+    /// 1. Launches the app
+    /// 2. Creates a new task
+    /// 3. Marks the task as completed
+    /// 4. Verifies the UI updates to show completion status
     testWidgets('Complete a task and verify it gets marked as completed', (
       WidgetTester tester,
     ) async {
@@ -67,6 +91,13 @@ void main() {
       expect(find.byIcon(Icons.check_circle).last, findsOneWidget);
     });
 
+    /// Test navigation between screens using bottom navigation
+    ///
+    /// This test:
+    /// 1. Launches the app
+    /// 2. Navigates to different screens using the bottom navigation bar
+    /// 3. Verifies each screen loads correctly
+    /// 4. Returns to the initial screen
     testWidgets('Navigate between screens using bottom navigation', (WidgetTester tester) async {
       // Start the app
       app.main();
@@ -97,6 +128,13 @@ void main() {
       expect(find.text('My Tasks'), findsOneWidget);
     });
 
+    /// Test the task deletion flow with confirmation dialog
+    ///
+    /// This test:
+    /// 1. Launches the app
+    /// 2. Creates a new task
+    /// 3. Deletes the task with confirmation
+    /// 4. Verifies the task disappears from the list
     testWidgets('Delete a task with confirmation dialog', (WidgetTester tester) async {
       // Start the app
       app.main();
@@ -131,6 +169,13 @@ void main() {
       expect(find.text('Task to Delete'), findsNothing);
     });
 
+    /// Test the task editing flow
+    ///
+    /// This test:
+    /// 1. Launches the app
+    /// 2. Creates a new task
+    /// 3. Edits the task with new information
+    /// 4. Verifies the changes appear in the list
     testWidgets('Edit a task and verify changes are applied', (WidgetTester tester) async {
       // Start the app
       app.main();

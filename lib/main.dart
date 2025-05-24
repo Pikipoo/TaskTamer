@@ -1,16 +1,40 @@
+/// TaskTamer - A self-care app that combines task management with collectible pixel-monsters.
+///
+/// This application helps users promote self-organization through gameplay, driving motivation
+/// with collectible progression, and delivering a strong pixel-art identity.
+///
+/// The app is built using Flutter and the Flame engine, with a BLoC pattern for state management,
+/// Hive for local storage, and various services for notifications and game mechanics.
+///
+/// Created by: TaskTamer Team
+/// License: See LICENSE file
+library;
+
 import 'package:flutter/material.dart';
 import 'package:task_tamer/src/app.dart';
 import 'package:task_tamer/src/service_locator.dart';
 
+/// Application entry point
+///
+/// Initializes the Flutter binding, sets up service locator with dependencies,
+/// and runs the TaskTamer application.
 void main() async {
+  // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Setup service locator
+  // Setup service locator for dependency injection
   await setupServiceLocator();
 
+  // Run the app
   runApp(const TaskTamerApp());
 }
 
+/// Legacy Flutter template app included for reference
+///
+/// This is kept for reference purposes and is not used in the actual application.
+/// The actual app implementation is in [TaskTamerApp].
+///
+/// @deprecated Use TaskTamerApp instead
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -42,6 +66,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Legacy Flutter template homepage included for reference
+///
+/// This is kept for reference purposes and is not used in the actual application.
+///
+/// @deprecated Use HomeScreen instead
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -60,6 +89,9 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+/// State for the legacy homepage
+///
+/// @deprecated Use HomeScreen instead
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 

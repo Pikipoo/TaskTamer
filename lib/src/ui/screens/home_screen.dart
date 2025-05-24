@@ -59,17 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.85, // Set initial height to 85% of screen
-          minChildSize: 0.5, // Minimum height is 50% of screen
-          maxChildSize: 0.95, // Maximum height is 95% of screen
-          expand: false,
-          builder: (context, scrollController) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SingleChildScrollView(controller: scrollController, child: TaskForm()),
-            );
-          },
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SingleChildScrollView(child: TaskForm()),
         );
       },
     );

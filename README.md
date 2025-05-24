@@ -2,6 +2,15 @@
 
 TaskTamer is a cross-platform mobile app combining task management with collectible pixel-monsters. Completing real-world tasks feeds, trains, and evolves pixel pets, turning self-organization into a fun, rewarding game.
 
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.8.0+-02569B?logo=flutter)](https://flutter.dev)
+[![Dart Version](https://img.shields.io/badge/Dart-3.8.0+-0175C2?logo=dart)](https://dart.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/yourusername/TaskTamer/flutter_ci.yml?branch=main)](https://github.com/yourusername/TaskTamer/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/yourusername/TaskTamer)](https://codecov.io/gh/yourusername/TaskTamer)
+[![Issues](https://img.shields.io/github/issues/yourusername/TaskTamer)](https://github.com/yourusername/TaskTamer/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/yourusername/TaskTamer)](https://github.com/yourusername/TaskTamer/commits/main)
+
 ![TaskTamer Screenshot](docs/images/screenshot.png)
 
 ## Features

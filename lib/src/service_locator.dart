@@ -12,10 +12,10 @@
 library;
 
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:task_tamer/src/blocs/creature/creature_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/user/user_bloc.dart';
+import 'package:task_tamer/src/models/hive_adapters.dart';
 import 'package:task_tamer/src/repositories/creature_repository.dart';
 import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
@@ -28,15 +28,18 @@ final GetIt serviceLocator = GetIt.instance;
 ///
 /// This function performs the following steps:
 /// 1. Initializes Hive for local storage
-/// 2. Registers services (e.g., NotificationService)
-/// 3. Creates and registers repositories
-/// 4. Registers BLoCs with their dependencies
+/// 2. Registers Hive adapters for custom types
+/// 3. Registers services (e.g., NotificationService)
+/// 4. Creates and registers repositories
+/// 5. Registers BLoCs with their dependencies
 ///
 /// Should be called during app initialization in [main.dart]
 /// before running the app to ensure all dependencies are available.
 Future<void> setupServiceLocator() async {
-  // Initialize Hive for local storage
-  await Hive.initFlutter();
+  // Hive is already initialized in main.dart
+
+  // Register Hive adapters for custom types
+  await registerHiveAdapters();
 
   // Register services
   // NotificationService is registered as a singleton to maintain a single instance

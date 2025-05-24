@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:task_tamer/src/models/task.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -14,12 +15,15 @@ class NotificationService {
 
   final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
 
+  /// Checks if the current platform is supported for notifications
+  bool get _isUnsupportedPlatform => kIsWeb || (!kIsWeb && Platform.isLinux);
+
   Future<void> initialize() async {
     tz_data.initializeTimeZones();
 
-    // Skip notification setup on Linux for now
-    if (Platform.isLinux) {
-      print('Skipping notification initialization on Linux platform');
+    // Skip notification setup on web or Linux for now
+    if (_isUnsupportedPlatform) {
+      print('Skipping notification initialization on ${kIsWeb ? 'web' : 'Linux'} platform');
       return;
     }
 
@@ -51,8 +55,8 @@ class NotificationService {
   }
 
   Future<void> scheduleTaskNotification(Task task) async {
-    // Skip notification on Linux for now
-    if (Platform.isLinux) {
+    // Skip notification on unsupported platforms
+    if (_isUnsupportedPlatform) {
       return;
     }
 
@@ -116,8 +120,8 @@ class NotificationService {
   }
 
   Future<void> cancelTaskNotifications(String taskId) async {
-    // Skip on Linux platform
-    if (Platform.isLinux) {
+    // Skip on unsupported platforms
+    if (_isUnsupportedPlatform) {
       return;
     }
 
@@ -134,8 +138,8 @@ class NotificationService {
   }
 
   Future<void> updateTaskNotifications(Task task) async {
-    // Skip on Linux platform
-    if (Platform.isLinux) {
+    // Skip on unsupported platforms
+    if (_isUnsupportedPlatform) {
       return;
     }
 
@@ -146,8 +150,8 @@ class NotificationService {
   }
 
   Future<void> cancelAllNotifications() async {
-    // Skip on Linux platform
-    if (Platform.isLinux) {
+    // Skip on unsupported platforms
+    if (_isUnsupportedPlatform) {
       return;
     }
 
@@ -155,11 +159,11 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    if (Platform.isLinux) {
-      return true; // No permissions needed on Linux
+    if (_isUnsupportedPlatform) {
+      return true; // No permissions needed on unsupported platforms
     }
 
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       final permissionStatus = await _notificationsPlugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.requestNotificationsPermission();

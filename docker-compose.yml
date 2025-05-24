@@ -1,0 +1,44 @@
+services:
+  tasktamer-linux:
+    build:
+      context: .
+      dockerfile: Dockerfile.linux
+    container_name: tasktamer-linux
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-root
+      - XDG_SESSION_TYPE=${XDG_SESSION_TYPE}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - GDK_BACKEND=wayland,x11
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - FLUTTER_TEST_DEVICE_ENABLE_VULKAN=1
+      - FLUTTER_ENABLE_SOFTWARE_RENDERING=true
+      - GTK_IM_MODULE=ibus
+      - QT_IM_MODULE=ibus
+      - XMODIFIERS=@im=ibus
+      - QT_QPA_PLATFORM=wayland
+      - XAUTHORITY=/root/.Xauthority
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/root/.Xauthority
+      - /tmp/runtime-root:/tmp/runtime-root
+      - /run/user/1000:/run/user/1000
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime-root/${WAYLAND_DISPLAY}
+    ipc: host
+    network_mode: "host"
+    privileged: true
+    devices:
+      - /dev/dri:/dev/dri
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  tasktamer-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: tasktamer-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped

@@ -127,6 +127,61 @@ This will install pre-commit hooks that:
 
 For more information, see the [Development Workflow Guide](docs/guides/development_workflow.md).
 
+### Running with Docker
+
+The project includes Docker configurations for both Linux and Web platforms. You can use Docker to build and run the application without installing Flutter or dependencies locally. Our Docker setup uses the official [Cirrus Labs Flutter Docker image](https://github.com/cirruslabs/docker-images-flutter/pkgs/container/flutter) with the stable channel.
+
+#### Prerequisites
+
+- Docker
+- Docker Compose
+- X11 server (for Linux version)
+
+#### Using the Run Script
+
+A convenience script is provided to easily build and run the application in Docker:
+
+```bash
+# Make the script executable (first time only)
+chmod +x run-docker.sh
+
+# Show available commands
+./run-docker.sh --help
+
+# Run the web version
+./run-docker.sh web
+
+# Run the Linux version
+./run-docker.sh linux
+
+# Run both versions
+./run-docker.sh all
+
+# Stop all containers
+./run-docker.sh stop
+
+# Clean up Docker resources
+./run-docker.sh clean
+```
+
+#### Manual Docker Commands
+
+You can also use Docker Compose directly:
+
+```bash
+# Build and run the web version
+docker compose up --build -d tasktamer-web
+
+# Build and run the Linux version
+xhost +local:docker  # Allow Docker containers to use X11
+docker compose up --build -d tasktamer-linux
+
+# Stop all containers
+docker compose down
+```
+
+The web version will be available at <http://localhost:8080>.
+
 ### Code Quality and Standards
 
 The project uses:

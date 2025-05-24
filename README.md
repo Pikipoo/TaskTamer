@@ -11,7 +11,7 @@ TaskTamer is a cross-platform mobile app combining task management with collecti
 [![Issues](https://img.shields.io/github/issues/yourusername/TaskTamer)](https://github.com/yourusername/TaskTamer/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/yourusername/TaskTamer)](https://github.com/yourusername/TaskTamer/commits/main)
 
-![TaskTamer Screenshot](docs/images/screenshot.png)
+<img src="docs/images/screenshot.png" alt="TaskTamer Screenshot" height="500"/>
 
 ## Features
 

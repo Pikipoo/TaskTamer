@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
+import 'package:task_tamer/src/models/notification_setting.dart';
 import 'package:task_tamer/src/models/task.dart';
+import 'package:task_tamer/src/ui/widgets/notification_setting_picker.dart';
 
 class TaskForm extends StatefulWidget {
   final Task? task;
@@ -24,6 +26,7 @@ class _TaskFormState extends State<TaskForm> {
   int? _repeatValue = 1;
   int? _timesPerDay = 1;
   final List<DateTime> _notificationTimes = [];
+  final List<NotificationSetting> _notificationSettings = [];
 
   @override
   void initState() {
@@ -42,6 +45,10 @@ class _TaskFormState extends State<TaskForm> {
 
       if (widget.task!.notificationTimes != null) {
         _notificationTimes.addAll(widget.task!.notificationTimes!);
+      }
+
+      if (widget.task!.notificationSettings != null) {
+        _notificationSettings.addAll(widget.task!.notificationSettings!);
       }
     }
   }
@@ -190,37 +197,80 @@ class _TaskFormState extends State<TaskForm> {
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _addNotification(context),
-                    icon: const Icon(Icons.notifications),
-                    label: const Text('Add Notification'),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text('Notifications', style: Theme.of(context).textTheme.titleMedium),
+            ),
+            if (_dueDate == null) ...[
+              const Text(
+                'Set a due date to configure notifications',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _addExactNotification(context),
+                      icon: const Icon(Icons.access_time),
+                      label: const Text('Add Specific Time'),
+                    ),
                   ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _addRelativeNotification(context),
+                      icon: const Icon(Icons.notifications),
+                      label: const Text('Add Relative Time'),
+                    ),
+                  ),
+                ],
+              ),
+
+              if (_notificationTimes.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                const Text('Exact Times:'),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _notificationTimes.map((time) {
+                    return Chip(
+                      avatar: const Icon(Icons.access_time, size: 16),
+                      label: Text(
+                        '${time.day}/${time.month} ${time.hour}:${time.minute.toString().padLeft(2, '0')}',
+                      ),
+                      onDeleted: () {
+                        setState(() {
+                          _notificationTimes.remove(time);
+                        });
+                      },
+                    );
+                  }).toList(),
                 ),
               ],
-            ),
-            if (_notificationTimes.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              const Text('Notifications:'),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _notificationTimes.map((time) {
-                  return Chip(
-                    label: Text(
-                      '${time.day}/${time.month} ${time.hour}:${time.minute.toString().padLeft(2, '0')}',
-                    ),
-                    onDeleted: () {
-                      setState(() {
-                        _notificationTimes.remove(time);
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
+
+              if (_notificationSettings.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                const Text('Relative Times:'),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _notificationSettings.map((setting) {
+                    return Chip(
+                      avatar: const Icon(Icons.timelapse, size: 16),
+                      label: Text(setting.description),
+                      onDeleted: () {
+                        setState(() {
+                          _notificationSettings.remove(setting);
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
             ],
             const SizedBox(height: 24),
             Row(
@@ -302,7 +352,7 @@ class _TaskFormState extends State<TaskForm> {
     }
   }
 
-  Future<void> _addNotification(BuildContext context) async {
+  Future<void> _addExactNotification(BuildContext context) async {
     final initialDate = _dueDate ?? DateTime.now();
     final pickedDate = await showDatePicker(
       context: context,
@@ -330,6 +380,26 @@ class _TaskFormState extends State<TaskForm> {
     }
   }
 
+  Future<void> _addRelativeNotification(BuildContext context) async {
+    if (_dueDate == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please set a due date first')));
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => NotificationSettingPicker(
+        onSettingAdded: (setting) {
+          setState(() {
+            _notificationSettings.add(setting);
+          });
+        },
+      ),
+    );
+  }
+
   void _saveTask() {
     if (_formKey.currentState!.validate()) {
       final DateTime? combinedDueDateTime = _dueDate == null
@@ -355,6 +425,7 @@ class _TaskFormState extends State<TaskForm> {
             repeatValue: _repeatFrequency == RepeatFrequency.none ? null : _repeatValue,
             timesPerDay: _timesPerDay == 1 ? null : _timesPerDay,
             notificationTimes: _notificationTimes.isEmpty ? null : _notificationTimes,
+            notificationSettings: _notificationSettings.isEmpty ? null : _notificationSettings,
           ),
         );
       } else {
@@ -369,6 +440,7 @@ class _TaskFormState extends State<TaskForm> {
               repeatValue: _repeatFrequency == RepeatFrequency.none ? null : _repeatValue,
               timesPerDay: _timesPerDay == 1 ? null : _timesPerDay,
               notificationTimes: _notificationTimes.isEmpty ? null : _notificationTimes,
+              notificationSettings: _notificationSettings.isEmpty ? null : _notificationSettings,
             ),
           ),
         );

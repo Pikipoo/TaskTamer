@@ -43,12 +43,34 @@ class NotificationService {
   }
 
   Future<void> scheduleTaskNotification(Task task) async {
-    if (task.notificationTimes == null || task.notificationTimes!.isEmpty) {
+    // First check if there's a due date
+    if (task.dueDate == null) {
       return;
     }
 
-    for (int i = 0; i < task.notificationTimes!.length; i++) {
-      final scheduledTime = task.notificationTimes![i];
+    // Handle calculated notifications from settings
+    List<DateTime>? timesToSchedule = task.notificationTimes;
+
+    // If we have notification settings, calculate the times
+    if (task.notificationSettings != null && task.notificationSettings!.isNotEmpty) {
+      final calculatedTimes = task.calculateNotificationTimes();
+      if (calculatedTimes != null && calculatedTimes.isNotEmpty) {
+        // Use calculated times or append to existing times
+        if (timesToSchedule == null) {
+          timesToSchedule = calculatedTimes;
+        } else {
+          timesToSchedule = [...timesToSchedule, ...calculatedTimes];
+        }
+      }
+    }
+
+    // No notification times available
+    if (timesToSchedule == null || timesToSchedule.isEmpty) {
+      return;
+    }
+
+    for (int i = 0; i < timesToSchedule.length; i++) {
+      final scheduledTime = timesToSchedule[i];
 
       if (scheduledTime.isBefore(DateTime.now())) {
         continue; // Skip past notifications
@@ -85,8 +107,8 @@ class NotificationService {
     final idStr = baseId.toString().substring(0, 9);
     final baseNotificationId = int.parse(idStr);
 
-    for (int i = 0; i < 10; i++) {
-      // Assuming max 10 notifications per task
+    for (int i = 0; i < 20; i++) {
+      // Increasing to 20 as we may have more notifications now
       await _notificationsPlugin.cancel(baseNotificationId + i);
     }
   }

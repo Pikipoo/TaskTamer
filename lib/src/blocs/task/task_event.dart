@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:task_tamer/src/models/notification_setting.dart';
 import 'package:task_tamer/src/models/task.dart';
 
 abstract class TaskEvent extends Equatable {
@@ -20,6 +21,7 @@ class AddTask extends TaskEvent {
   final int? repeatValue;
   final int? timesPerDay;
   final List<DateTime>? notificationTimes;
+  final List<NotificationSetting>? notificationSettings;
 
   const AddTask({
     required this.title,
@@ -29,6 +31,7 @@ class AddTask extends TaskEvent {
     this.repeatValue,
     this.timesPerDay,
     this.notificationTimes,
+    this.notificationSettings,
   });
 
   @override
@@ -40,6 +43,7 @@ class AddTask extends TaskEvent {
     repeatValue,
     timesPerDay,
     notificationTimes,
+    notificationSettings,
   ];
 }
 

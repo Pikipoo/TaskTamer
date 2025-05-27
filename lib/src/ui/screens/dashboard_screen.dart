@@ -72,8 +72,25 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   ExperienceBar(currentXP: userProfile.experiencePoints % 100, maxXP: 100),
                   const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${userProfile.experiencePoints} XP total',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        '${userProfile.availableExperiencePoints} XP available',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    '${userProfile.experiencePoints} XP total',
+                    'Complete tasks to earn more XP. Available XP can be used to level up creatures and hatch eggs.',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

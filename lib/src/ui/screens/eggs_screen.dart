@@ -5,6 +5,9 @@ import 'package:task_tamer/src/blocs/creature/creature_event.dart';
 import 'package:task_tamer/src/blocs/egg/egg_bloc.dart';
 import 'package:task_tamer/src/blocs/egg/egg_event.dart';
 import 'package:task_tamer/src/blocs/egg/egg_state.dart';
+import 'package:task_tamer/src/blocs/user/user_bloc.dart';
+import 'package:task_tamer/src/blocs/user/user_event.dart';
+import 'package:task_tamer/src/blocs/user/user_state.dart';
 import 'package:task_tamer/src/models/egg.dart';
 import 'package:task_tamer/src/ui/screens/home_screen.dart';
 import 'package:task_tamer/src/ui/widgets/egg_card.dart';
@@ -32,11 +35,43 @@ class EggsScreen extends StatelessWidget {
             );
           }
 
+          // Get user state to check if we have available XP
+          final userState = context.watch<UserBloc>().state;
+          final hasAvailableXP =
+              userState is UserLoaded && userState.userProfile.availableExperiencePoints > 0;
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (hasAvailableXP)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Card(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'You have ${(userState).userProfile.availableExperiencePoints} XP available to feed your eggs!',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 if (readyToHatchEggs.isNotEmpty) ...[
                   Text(
                     'Ready to Hatch',
@@ -179,7 +214,27 @@ class EggsScreen extends StatelessWidget {
   }
 
   void _showAddXPDialog(BuildContext context, Egg egg) {
+    // Get current user state to check available XP
+    final userState = context.read<UserBloc>().state;
+    if (userState is! UserLoaded) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Cannot load user profile')));
+      return;
+    }
+
+    final availableXP = userState.userProfile.availableExperiencePoints;
+    if (availableXP <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No XP available. Complete tasks to earn more!')),
+      );
+      return;
+    }
+
     final remainingXP = egg.experienceRequired - egg.experiencePoints;
+
+    // Calculate max XP to add - either available XP or what's needed to hatch
+    final maxXP = availableXP < remainingXP ? availableXP : remainingXP;
 
     // Define initial XP value for the slider
     double selectedXP = 1.0;
@@ -194,6 +249,7 @@ class EggsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('This egg needs $remainingXP more XP to hatch.'),
+              Text('You have $availableXP XP available to use.'),
               const SizedBox(height: 16),
 
               // Label showing the selected XP value
@@ -216,10 +272,8 @@ class EggsScreen extends StatelessWidget {
               Slider(
                 value: selectedXP,
                 min: 1,
-                max: remainingXP.toDouble(),
-                divisions: remainingXP > 20
-                    ? 20
-                    : remainingXP.toInt(), // Limit divisions for smoother sliding
+                max: maxXP.toDouble(),
+                divisions: maxXP > 20 ? 20 : maxXP.toInt(), // Limit divisions for smoother sliding
                 label: selectedXP.round().toString(),
                 onChanged: (value) {
                   setState(() {
@@ -268,9 +322,14 @@ class EggsScreen extends StatelessWidget {
               onPressed: () {
                 final xpAmount = selectedXP.round();
                 if (xpAmount > 0) {
+                  // Add XP to egg
                   context.read<EggBloc>().add(
                     AddEggExperiencePoints(eggId: egg.id, points: xpAmount),
                   );
+
+                  // Deduct XP from user's available XP
+                  context.read<UserBloc>().add(UseAvailableExperiencePoints(xpAmount));
+
                   Navigator.pop(context);
                 }
               },

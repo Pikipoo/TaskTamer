@@ -37,3 +37,12 @@ class AddExperiencePoints extends UserEvent {
   @override
   List<Object> get props => [points];
 }
+
+class UseAvailableExperiencePoints extends UserEvent {
+  final int points;
+
+  const UseAvailableExperiencePoints(this.points);
+
+  @override
+  List<Object> get props => [points];
+}

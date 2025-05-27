@@ -6,6 +6,7 @@ class UserProfile extends Equatable {
   final String id;
   final String name;
   final int experiencePoints;
+  final int availableExperiencePoints;
   final int level;
   final String? avatarPath;
 
@@ -13,6 +14,7 @@ class UserProfile extends Equatable {
     required this.id,
     required this.name,
     this.experiencePoints = 0,
+    this.availableExperiencePoints = 0,
     this.level = 1,
     this.avatarPath,
   });
@@ -21,6 +23,7 @@ class UserProfile extends Equatable {
     String? id,
     String? name,
     int? experiencePoints,
+    int? availableExperiencePoints,
     int? level,
     String? avatarPath,
   }) {
@@ -28,6 +31,7 @@ class UserProfile extends Equatable {
       id: id ?? this.id,
       name: name ?? this.name,
       experiencePoints: experiencePoints ?? this.experiencePoints,
+      availableExperiencePoints: availableExperiencePoints ?? this.availableExperiencePoints,
       level: level ?? this.level,
       avatarPath: avatarPath ?? this.avatarPath,
     );
@@ -35,9 +39,22 @@ class UserProfile extends Equatable {
 
   UserProfile addExperiencePoints(int points) {
     final newExperiencePoints = experiencePoints + points;
+    final newAvailableXP = availableExperiencePoints + points;
     // Simple level calculation: level = 1 + exp / 100 (rounded down)
     final newLevel = 1 + (newExperiencePoints ~/ 100);
-    return copyWith(experiencePoints: newExperiencePoints, level: newLevel);
+    return copyWith(
+      experiencePoints: newExperiencePoints,
+      availableExperiencePoints: newAvailableXP,
+      level: newLevel,
+    );
+  }
+
+  UserProfile useAvailableExperiencePoints(int points) {
+    if (points > availableExperiencePoints) {
+      throw Exception('Not enough available XP');
+    }
+
+    return copyWith(availableExperiencePoints: availableExperiencePoints - points);
   }
 
   int get experiencePointsForNextLevel => (level) * 100;
@@ -51,13 +68,21 @@ class UserProfile extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, experiencePoints, level, avatarPath];
+  List<Object?> get props => [
+    id,
+    name,
+    experiencePoints,
+    availableExperiencePoints,
+    level,
+    avatarPath,
+  ];
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'experiencePoints': experiencePoints,
+      'availableExperiencePoints': availableExperiencePoints,
       'level': level,
       'avatarPath': avatarPath,
     };
@@ -68,6 +93,7 @@ class UserProfile extends Equatable {
       id: json['id'],
       name: json['name'],
       experiencePoints: json['experiencePoints'] ?? 0,
+      availableExperiencePoints: json['availableExperiencePoints'] ?? json['experiencePoints'] ?? 0,
       level: json['level'] ?? 1,
       avatarPath: json['avatarPath'],
     );

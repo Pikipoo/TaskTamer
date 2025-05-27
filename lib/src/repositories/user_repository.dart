@@ -48,6 +48,18 @@ class UserRepository {
     return updatedUser;
   }
 
+  Future<UserProfile> useAvailableExperiencePoints(int points) async {
+    final user = await getUserProfile();
+
+    if (points > user.availableExperiencePoints) {
+      throw Exception('Not enough available XP');
+    }
+
+    final updatedUser = user.useAvailableExperiencePoints(points);
+    await _box.put(user.id, updatedUser);
+    return updatedUser;
+  }
+
   Future<UserProfile> updateName(String name) async {
     final user = await getUserProfile();
     final updatedUser = user.copyWith(name: name);

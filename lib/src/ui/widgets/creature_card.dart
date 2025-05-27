@@ -6,8 +6,15 @@ class CreatureCard extends StatelessWidget {
   final Creature creature;
   final bool isLocked;
   final Function()? onTap;
+  final Function()? onAddXP;
 
-  const CreatureCard({super.key, required this.creature, this.isLocked = false, this.onTap});
+  const CreatureCard({
+    super.key,
+    required this.creature,
+    this.isLocked = false,
+    this.onTap,
+    this.onAddXP,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +83,25 @@ class CreatureCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              if (onAddXP != null && !isLocked)
+                                Positioned(
+                                  left: 8,
+                                  bottom: 8,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.add, color: Colors.white),
+                                      tooltip: 'Add XP',
+                                      onPressed: onAddXP,
+                                      iconSize: 18,
+                                      padding: const EdgeInsets.all(4),
+                                      constraints: const BoxConstraints(),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                   ),
@@ -138,6 +164,24 @@ class CreatureCard extends StatelessWidget {
                             currentXP: creature.experiencePoints,
                             maxXP: creature.experienceForNextLevel,
                           ),
+                          if (creature.canEvolve)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.auto_awesome, size: 14, color: Colors.amber),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    'Ready to evolve!',
+                                    style: TextStyle(
+                                      color: Colors.amber,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       ],
                     ),
@@ -146,33 +190,6 @@ class CreatureCard extends StatelessWidget {
               ],
             ),
             if (isLocked) Positioned.fill(child: Container(color: Colors.black.withOpacity(0.3))),
-            if (creature.canEvolve && !isLocked)
-              Positioned(
-                left: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.auto_awesome, size: 12, color: Colors.white),
-                      const SizedBox(width: 2),
-                      Text(
-                        'READY TO EVOLVE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -183,15 +200,22 @@ class CreatureCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(4),
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12),
-          const SizedBox(width: 4),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Icon(icon, size: 12, color: Theme.of(context).colorScheme.onPrimaryContainer),
+          const SizedBox(width: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
         ],
       ),
     );

@@ -13,6 +13,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<UpdateUserName>(_onUpdateUserName);
     on<UpdateUserAvatar>(_onUpdateUserAvatar);
     on<AddExperiencePoints>(_onAddExperiencePoints);
+    on<UseAvailableExperiencePoints>(_onUseAvailableExperiencePoints);
   }
 
   Future<void> _onLoadUserProfile(LoadUserProfile event, Emitter<UserState> emit) async {
@@ -73,6 +74,34 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         // Regular XP gain
         emit(UserLoaded(userProfile));
       }
+    } catch (e) {
+      emit(UserOperationFailure(e.toString()));
+    }
+  }
+
+  Future<void> _onUseAvailableExperiencePoints(
+    UseAvailableExperiencePoints event,
+    Emitter<UserState> emit,
+  ) async {
+    final currentState = state;
+
+    try {
+      // Check if we have enough XP
+      if (currentState is UserLoaded) {
+        if (event.points > currentState.userProfile.availableExperiencePoints) {
+          emit(UserOperationFailure('Not enough available XP'));
+          return;
+        }
+      }
+
+      final userProfile = await _userRepository.useAvailableExperiencePoints(event.points);
+
+      // Only emit loading state if we're not already in a loaded state
+      if (currentState is! UserLoaded) {
+        emit(const UserLoading());
+      }
+
+      emit(UserLoaded(userProfile));
     } catch (e) {
       emit(UserOperationFailure(e.toString()));
     }

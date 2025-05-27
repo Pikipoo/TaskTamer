@@ -15,7 +15,10 @@ import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/blocs/user/user_bloc.dart';
 import 'package:task_tamer/src/blocs/user/user_event.dart';
+import 'package:task_tamer/src/repositories/task_repository.dart';
+import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/service_locator.dart';
+import 'package:task_tamer/src/services/notification_service.dart';
 import 'package:task_tamer/src/ui/screens/home_screen.dart';
 import 'package:task_tamer/src/ui/themes/app_theme.dart';
 
@@ -32,16 +35,24 @@ class TaskTamerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Create UserBloc first so we can pass it to TaskBloc
+    final userBloc = UserBloc(userRepository: serviceLocator<UserRepository>())
+      ..add(const LoadUserProfile());
+
+    // Create TaskBloc with reference to UserBloc
+    final taskBloc = TaskBloc(
+      taskRepository: serviceLocator<TaskRepository>(),
+      userRepository: serviceLocator<UserRepository>(),
+      notificationService: serviceLocator<NotificationService>(),
+      userBloc: userBloc,
+    )..add(const LoadTasks());
+
     return MultiBlocProvider(
       providers: [
-        // Task BLoC provider - handles task-related operations and state
-        BlocProvider<TaskBloc>(
-          create: (context) => serviceLocator<TaskBloc>()..add(const LoadTasks()),
-        ),
         // User BLoC provider - handles user profile and progression
-        BlocProvider<UserBloc>(
-          create: (context) => serviceLocator<UserBloc>()..add(const LoadUserProfile()),
-        ),
+        BlocProvider<UserBloc>(create: (context) => userBloc),
+        // Task BLoC provider - handles task-related operations and state
+        BlocProvider<TaskBloc>(create: (context) => taskBloc),
         // Creature BLoC provider - handles pet/creature management
         BlocProvider<CreatureBloc>(
           create: (context) => serviceLocator<CreatureBloc>()

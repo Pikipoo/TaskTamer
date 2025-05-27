@@ -21,13 +21,24 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     on<EvolveCreature>(_onEvolveCreature);
     on<RenameCreature>(_onRenameCreature);
     on<InitializeDefaultCreatures>(_onInitializeDefaultCreatures);
+    on<SetNewlyHatchedCreature>(_onSetNewlyHatchedCreature);
   }
 
   Future<void> _onLoadCreatures(LoadCreatures event, Emitter<CreatureState> emit) async {
     emit(const CreatureLoading());
     try {
       final creatures = await _creatureRepository.getAllCreatures();
-      emit(CreaturesLoaded(creatures));
+
+      // Check if we're currently highlighting a newly hatched creature
+      String? newlyHatchedId;
+      if (state is CreaturesLoaded) {
+        newlyHatchedId = (state as CreaturesLoaded).newlyHatchedCreatureId;
+      } else if (state is CreatureOperationSuccess &&
+          (state as CreatureOperationSuccess).isNewlyHatched) {
+        newlyHatchedId = (state as CreatureOperationSuccess).creature?.id;
+      }
+
+      emit(CreaturesLoaded(creatures, newlyHatchedCreatureId: newlyHatchedId));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }
@@ -40,7 +51,17 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     emit(const CreatureLoading());
     try {
       final creatures = await _creatureRepository.getUnlockedCreatures();
-      emit(UnlockedCreaturesLoaded(creatures));
+
+      // Check if we're currently highlighting a newly hatched creature
+      String? newlyHatchedId;
+      if (state is UnlockedCreaturesLoaded) {
+        newlyHatchedId = (state as UnlockedCreaturesLoaded).newlyHatchedCreatureId;
+      } else if (state is CreatureOperationSuccess &&
+          (state as CreatureOperationSuccess).isNewlyHatched) {
+        newlyHatchedId = (state as CreatureOperationSuccess).creature?.id;
+      }
+
+      emit(UnlockedCreaturesLoaded(creatures, newlyHatchedCreatureId: newlyHatchedId));
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }
@@ -215,6 +236,43 @@ class CreatureBloc extends Bloc<CreatureEvent, CreatureState> {
     emit(const CreatureLoading());
     try {
       await _creatureRepository.initializeDefaultCreatures();
+      final creatures = await _creatureRepository.getAllCreatures();
+      emit(CreaturesLoaded(creatures));
+    } catch (e) {
+      emit(CreatureOperationFailure(e.toString()));
+    }
+  }
+
+  Future<void> _onSetNewlyHatchedCreature(
+    SetNewlyHatchedCreature event,
+    Emitter<CreatureState> emit,
+  ) async {
+    try {
+      final creature = await _creatureRepository.getCreatureById(event.creatureId);
+
+      if (creature == null) {
+        emit(const CreatureOperationFailure('Creature not found'));
+        return;
+      }
+
+      if (state is CreaturesLoaded) {
+        // If we already have creatures loaded, update with the highlighted creature
+        final creatures = (state as CreaturesLoaded).creatures;
+        emit(CreaturesLoaded(creatures, newlyHatchedCreatureId: event.creatureId));
+      } else if (state is UnlockedCreaturesLoaded) {
+        // If we have unlocked creatures loaded, update with the highlighted creature
+        final creatures = (state as UnlockedCreaturesLoaded).creatures;
+        emit(UnlockedCreaturesLoaded(creatures, newlyHatchedCreatureId: event.creatureId));
+      } else {
+        // Otherwise, just emit a success state with the newly hatched flag
+        emit(
+          CreatureOperationSuccess(
+            message: '${creature.name} has been hatched and added to your collection!',
+            creature: creature,
+            isNewlyHatched: true,
+          ),
+        );
+      }
     } catch (e) {
       emit(CreatureOperationFailure(e.toString()));
     }

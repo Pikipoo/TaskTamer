@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_tamer/src/blocs/creature/creature_bloc.dart';
+import 'package:task_tamer/src/blocs/creature/creature_event.dart';
 import 'package:task_tamer/src/blocs/egg/egg_bloc.dart';
 import 'package:task_tamer/src/blocs/egg/egg_event.dart';
 import 'package:task_tamer/src/blocs/egg/egg_state.dart';
 import 'package:task_tamer/src/models/egg.dart';
+import 'package:task_tamer/src/ui/screens/home_screen.dart';
 import 'package:task_tamer/src/ui/widgets/egg_card.dart';
 
 class EggsScreen extends StatelessWidget {
@@ -113,6 +116,15 @@ class EggsScreen extends StatelessWidget {
           // Reload eggs after a successful hatch
           context.read<EggBloc>().add(const LoadEggs());
 
+          // Reload creatures to show the newly hatched creature
+          if (state.creatureId != null) {
+            // Tell the CreatureBloc about the newly hatched creature so it can be highlighted
+            context.read<CreatureBloc>().add(SetNewlyHatchedCreature(state.creatureId!));
+
+            // Also load all creatures to ensure the list is refreshed
+            context.read<CreatureBloc>().add(const LoadCreatures());
+          }
+
           // Show a snackbar with the success message
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -120,6 +132,17 @@ class EggsScreen extends StatelessWidget {
                 content: Text(state.message),
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: 'View Creature',
+                  onPressed: () {
+                    // Switch to Creatures tab when the user taps "View Creature"
+                    final HomeScreenState? homeState = context
+                        .findAncestorStateOfType<HomeScreenState>();
+                    if (homeState != null) {
+                      homeState.switchToCreaturesTab();
+                    }
+                  },
+                ),
               ),
             );
           });

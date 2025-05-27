@@ -18,30 +18,37 @@ class CreatureLoading extends CreatureState {
 
 class CreaturesLoaded extends CreatureState {
   final List<Creature> creatures;
+  final String? newlyHatchedCreatureId;
 
-  const CreaturesLoaded(this.creatures);
+  const CreaturesLoaded(this.creatures, {this.newlyHatchedCreatureId});
 
   @override
-  List<Object> get props => [creatures];
+  List<Object?> get props => [creatures, newlyHatchedCreatureId];
 }
 
 class UnlockedCreaturesLoaded extends CreatureState {
   final List<Creature> creatures;
+  final String? newlyHatchedCreatureId;
 
-  const UnlockedCreaturesLoaded(this.creatures);
+  const UnlockedCreaturesLoaded(this.creatures, {this.newlyHatchedCreatureId});
 
   @override
-  List<Object> get props => [creatures];
+  List<Object?> get props => [creatures, newlyHatchedCreatureId];
 }
 
 class CreatureOperationSuccess extends CreatureState {
   final String message;
   final Creature? creature;
+  final bool isNewlyHatched;
 
-  const CreatureOperationSuccess({required this.message, this.creature});
+  const CreatureOperationSuccess({
+    required this.message,
+    this.creature,
+    this.isNewlyHatched = false,
+  });
 
   @override
-  List<Object?> get props => [message, creature];
+  List<Object?> get props => [message, creature, isNewlyHatched];
 }
 
 class CreatureOperationFailure extends CreatureState {
@@ -51,4 +58,14 @@ class CreatureOperationFailure extends CreatureState {
 
   @override
   List<Object> get props => [error];
+}
+
+class NewlyHatchedCreature extends CreatureState {
+  final Creature creature;
+  final String message;
+
+  const NewlyHatchedCreature({required this.creature, this.message = 'New creature hatched!'});
+
+  @override
+  List<Object> get props => [creature, message];
 }

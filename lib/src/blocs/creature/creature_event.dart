@@ -119,3 +119,12 @@ class RenameCreature extends CreatureEvent {
 class InitializeDefaultCreatures extends CreatureEvent {
   const InitializeDefaultCreatures();
 }
+
+class SetNewlyHatchedCreature extends CreatureEvent {
+  final String creatureId;
+
+  const SetNewlyHatchedCreature(this.creatureId);
+
+  @override
+  List<Object> get props => [creatureId];
+}

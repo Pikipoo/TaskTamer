@@ -10,11 +10,15 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+// Make this class public so it can be accessed from other screens
+class HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
+  // Index of the Creatures tab
+  static const int CREATURES_TAB_INDEX = 2;
 
   final List<Widget> _screens = [
     const DashboardScreen(),
@@ -24,6 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final List<String> _titles = ['Dashboard', 'Tasks', 'Creatures', 'Eggs'];
+
+  // Method to switch to creatures tab
+  void switchToCreaturesTab() {
+    setState(() {
+      _currentIndex = CREATURES_TAB_INDEX;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

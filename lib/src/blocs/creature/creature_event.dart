@@ -21,16 +21,33 @@ class AddCreature extends CreatureEvent {
   final String species;
   final String imagePath;
   final bool isUnlocked;
+  final CreatureRarity rarity;
+  final CreatureType type;
+  final CreatureElement element;
+  final String description;
 
   const AddCreature({
     required this.name,
     required this.species,
     required this.imagePath,
     this.isUnlocked = false,
+    this.rarity = CreatureRarity.COMMON,
+    required this.type,
+    required this.element,
+    required this.description,
   });
 
   @override
-  List<Object> get props => [name, species, imagePath, isUnlocked];
+  List<Object> get props => [
+    name,
+    species,
+    imagePath,
+    isUnlocked,
+    rarity,
+    type,
+    element,
+    description,
+  ];
 }
 
 class UpdateCreature extends CreatureEvent {
@@ -78,6 +95,15 @@ class AddExperienceToCreature extends CreatureEvent {
 
   @override
   List<Object> get props => [creatureId, points];
+}
+
+class EvolveCreature extends CreatureEvent {
+  final String creatureId;
+
+  const EvolveCreature(this.creatureId);
+
+  @override
+  List<Object> get props => [creatureId];
 }
 
 class RenameCreature extends CreatureEvent {

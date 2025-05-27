@@ -54,7 +54,7 @@ class HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.task_alt), label: 'Tasks'),
           BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Creatures'),
-          BottomNavigationBarItem(icon: Icon(Icons.egg_alt), label: 'Eggs'),
+          BottomNavigationBarItem(icon: Icon(Icons.egg), label: 'Eggs'),
         ],
       ),
       floatingActionButton: _currentIndex == 1

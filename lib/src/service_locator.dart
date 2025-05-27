@@ -13,10 +13,12 @@ library;
 
 import 'package:get_it/get_it.dart';
 import 'package:task_tamer/src/blocs/creature/creature_bloc.dart';
+import 'package:task_tamer/src/blocs/egg/egg_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/user/user_bloc.dart';
 import 'package:task_tamer/src/models/hive_adapters.dart';
 import 'package:task_tamer/src/repositories/creature_repository.dart';
+import 'package:task_tamer/src/repositories/egg_repository.dart';
 import 'package:task_tamer/src/repositories/task_repository.dart';
 import 'package:task_tamer/src/repositories/user_repository.dart';
 import 'package:task_tamer/src/services/notification_service.dart';
@@ -59,6 +61,10 @@ Future<void> setupServiceLocator() async {
   final creatureRepository = await CreatureRepository.create();
   serviceLocator.registerSingleton<CreatureRepository>(creatureRepository);
 
+  // EggRepository for managing eggs that hatch into creatures
+  final eggRepository = await EggRepository.create();
+  serviceLocator.registerSingleton<EggRepository>(eggRepository);
+
   // Register BLoCs
   // Using factory registration for BLoCs to create a new instance every time they're requested
   // TaskBloc handles task operations and is dependent on task and user repositories
@@ -78,5 +84,13 @@ Future<void> setupServiceLocator() async {
   // CreatureBloc handles pet/creature management
   serviceLocator.registerFactory<CreatureBloc>(
     () => CreatureBloc(creatureRepository: serviceLocator<CreatureRepository>()),
+  );
+
+  // EggBloc handles egg management and hatching
+  serviceLocator.registerFactory<EggBloc>(
+    () => EggBloc(
+      eggRepository: serviceLocator<EggRepository>(),
+      creatureRepository: serviceLocator<CreatureRepository>(),
+    ),
   );
 }

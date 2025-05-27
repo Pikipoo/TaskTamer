@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tamer/src/blocs/creature/creature_bloc.dart';
 import 'package:task_tamer/src/blocs/creature/creature_event.dart';
+import 'package:task_tamer/src/blocs/egg/egg_bloc.dart';
+import 'package:task_tamer/src/blocs/egg/egg_event.dart';
 import 'package:task_tamer/src/blocs/task/task_bloc.dart';
 import 'package:task_tamer/src/blocs/task/task_event.dart';
 import 'package:task_tamer/src/blocs/user/user_bloc.dart';
@@ -28,6 +30,7 @@ import 'package:task_tamer/src/ui/themes/app_theme.dart';
 /// - [TaskBloc] for task management
 /// - [UserBloc] for user profile and progression
 /// - [CreatureBloc] for pet/creature management
+/// - [EggBloc] for egg management and hatching
 ///
 /// Also configures theme settings and sets the home screen as the initial route.
 class TaskTamerApp extends StatelessWidget {
@@ -58,6 +61,12 @@ class TaskTamerApp extends StatelessWidget {
           create: (context) => serviceLocator<CreatureBloc>()
             ..add(const InitializeDefaultCreatures())
             ..add(const LoadCreatures()),
+        ),
+        // Egg BLoC provider - handles egg management and hatching
+        BlocProvider<EggBloc>(
+          create: (context) => serviceLocator<EggBloc>()
+            ..add(const InitializeStarterEggs())
+            ..add(const LoadEggs()),
         ),
       ],
       child: MaterialApp(

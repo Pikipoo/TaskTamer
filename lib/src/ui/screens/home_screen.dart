@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_tamer/src/ui/screens/creatures_screen.dart';
 import 'package:task_tamer/src/ui/screens/dashboard_screen.dart';
+import 'package:task_tamer/src/ui/screens/eggs_screen.dart';
 import 'package:task_tamer/src/ui/screens/tasks_screen.dart';
 import 'package:task_tamer/src/ui/widgets/app_drawer.dart';
 import 'package:task_tamer/src/ui/widgets/task_form.dart';
@@ -19,9 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
     const DashboardScreen(),
     const TasksScreen(),
     const CreaturesScreen(),
+    const EggsScreen(),
   ];
 
-  final List<String> _titles = ['Dashboard', 'Tasks', 'Creatures'];
+  final List<String> _titles = ['Dashboard', 'Tasks', 'Creatures', 'Eggs'];
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
+        type: BottomNavigationBarType.fixed, // Needed for more than 3 items
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.task_alt), label: 'Tasks'),
           BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Creatures'),
+          BottomNavigationBarItem(icon: Icon(Icons.egg_alt), label: 'Eggs'),
         ],
       ),
       floatingActionButton: _currentIndex == 1

@@ -75,7 +75,18 @@ class EggRepository {
       throw Exception('Egg not found');
     }
 
-    final updatedEgg = egg.addExperiencePoints(points);
+    // Calculate how much XP is needed to reach the required amount
+    final remainingXP = egg.experienceRequired - egg.experiencePoints;
+
+    // Limit the added XP to the remaining amount needed
+    final adjustedPoints = points > remainingXP ? remainingXP : points;
+
+    // Only update if there's XP to add
+    if (adjustedPoints <= 0) {
+      return egg; // Already has enough or more XP
+    }
+
+    final updatedEgg = egg.addExperiencePoints(adjustedPoints);
     await _box.put(id, updatedEgg);
     return updatedEgg;
   }
@@ -103,5 +114,47 @@ class EggRepository {
       await addEgg(rarity: CreatureRarity.COMMON);
       await addEgg(rarity: CreatureRarity.UNCOMMON); // One slightly better egg
     }
+  }
+
+  /// Test the XP limiting functionality (for development verification only)
+  /// This method should not be used in production
+  Future<Map<String, dynamic>> testXpLimiting() async {
+    // Create a test egg with 10 XP required
+    final testEgg = await addEgg(rarity: CreatureRarity.COMMON, experienceRequired: 10);
+
+    // Test case 1: Add 5 XP (within limit)
+    final egg1 = await addExperiencePoints(testEgg.id, 5);
+
+    // Test case 2: Add 10 XP (more than needed)
+    final egg2 = await addExperiencePoints(egg1.id, 10);
+
+    // Test case 3: Add more XP when already at max
+    final egg3 = await addExperiencePoints(egg2.id, 5);
+
+    // Clean up
+    await deleteEgg(testEgg.id);
+
+    return {
+      'case1': {
+        'added': 5,
+        'expected': 5,
+        'actual': egg1.experiencePoints,
+        'success': egg1.experiencePoints == 5,
+      },
+      'case2': {
+        'added': 10,
+        'expected': 10, // Only 5 more should be added to reach 10
+        'actual': egg2.experiencePoints,
+        'success': egg2.experiencePoints == 10,
+      },
+      'case3': {
+        'added': 5,
+        'expected': 10, // No change since already at max
+        'actual': egg3.experiencePoints,
+        'success': egg3.experiencePoints == 10,
+      },
+      'overall':
+          egg1.experiencePoints == 5 && egg2.experiencePoints == 10 && egg3.experiencePoints == 10,
+    };
   }
 }

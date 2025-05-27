@@ -156,47 +156,105 @@ class EggsScreen extends StatelessWidget {
   }
 
   void _showAddXPDialog(BuildContext context, Egg egg) {
-    final controller = TextEditingController();
     final remainingXP = egg.experienceRequired - egg.experiencePoints;
+
+    // Define initial XP value for the slider
+    double selectedXP = 1.0;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add XP to Egg'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('This egg needs $remainingXP more XP to hatch.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'XP Amount',
-                border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add XP to Egg'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('This egg needs $remainingXP more XP to hatch.'),
+              const SizedBox(height: 16),
+
+              // Label showing the selected XP value
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Selected XP:', style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    '${selectedXP.round()}',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
-              keyboardType: TextInputType.number,
+              const SizedBox(height: 8),
+
+              // XP Slider
+              Slider(
+                value: selectedXP,
+                min: 1,
+                max: remainingXP.toDouble(),
+                divisions: remainingXP > 20
+                    ? 20
+                    : remainingXP.toInt(), // Limit divisions for smoother sliding
+                label: selectedXP.round().toString(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedXP = value;
+                  });
+                },
+              ),
+
+              // Progress visualization
+              LinearProgressIndicator(
+                value: (egg.experiencePoints + selectedXP.round()) / egg.experienceRequired,
+                minHeight: 8,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  (egg.experiencePoints + selectedXP.round() >= egg.experienceRequired)
+                      ? Colors.green
+                      : Theme.of(context).colorScheme.primary,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+              Text(
+                'Progress: ${egg.experiencePoints} + ${selectedXP.round()} = ${(egg.experiencePoints + selectedXP.round())} / ${egg.experienceRequired}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+
+              if (egg.experiencePoints + selectedXP.round() >= egg.experienceRequired)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Egg will be ready to hatch!',
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () {
+                final xpAmount = selectedXP.round();
+                if (xpAmount > 0) {
+                  context.read<EggBloc>().add(
+                    AddEggExperiencePoints(eggId: egg.id, points: xpAmount),
+                  );
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Add XP'),
             ),
           ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              final xpAmount = int.tryParse(controller.text);
-              if (xpAmount != null && xpAmount > 0) {
-                // Only add as much XP as needed
-                final limitedXP = xpAmount > remainingXP ? remainingXP : xpAmount;
-
-                context.read<EggBloc>().add(
-                  AddEggExperiencePoints(eggId: egg.id, points: limitedXP),
-                );
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add XP'),
-          ),
-        ],
       ),
     );
   }

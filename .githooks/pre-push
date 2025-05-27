@@ -12,9 +12,9 @@ fi
 
 # Analyze Dart files
 echo "Analyzing Dart files..."
-dart analyze --fatal-warnings
+dart analyze --fatal-infos
 if [ $? -ne 0 ]; then
-  echo "Error: Dart analysis found issues"
+  echo "Warning: Dart analysis found issues"
   exit 1
 fi
 
